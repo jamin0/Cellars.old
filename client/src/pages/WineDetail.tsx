@@ -38,11 +38,18 @@ export default function WineDetail() {
   const { data: wine, isLoading, isError } = useQuery<Wine>({
     queryKey: ["/api/wines", id],
     enabled: !!id,
+    retry: 3,
+    staleTime: 5000
   });
   
-  // Search for catalog info to display additional details
+  // Fetch catalog info directly with a more targeted search
   const { data: catalogInfo } = useQuery<WineCatalog[]>({
     queryKey: ["/api/catalog/search", wine?.name],
+    queryFn: async () => {
+      const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(wine?.name || '')}`);
+      if (!res.ok) throw new Error('Failed to search wine catalog');
+      return res.json();
+    },
     enabled: !!wine?.name,
   });
   
@@ -239,36 +246,26 @@ export default function WineDetail() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium">Wine Details</h3>
-                    {wine.wine && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Wine Type:</span>
-                        <span className="text-sm">{wine.wine}</span>
-                      </div>
-                    )}
-                    {wine.subType && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Sub-Type:</span>
-                        <span className="text-sm">{wine.subType}</span>
-                      </div>
-                    )}
-                    {wine.producer && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Producer:</span>
-                        <span className="text-sm">{wine.producer}</span>
-                      </div>
-                    )}
-                    {wine.region && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Region:</span>
-                        <span className="text-sm">{wine.region}</span>
-                      </div>
-                    )}
-                    {wine.country && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Country:</span>
-                        <span className="text-sm">{wine.country}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Wine Type:</span>
+                      <span className="text-sm">{wine.wine || 'Not specified'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Sub-Type:</span>
+                      <span className="text-sm">{wine.subType || 'Not specified'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Producer:</span>
+                      <span className="text-sm">{wine.producer || 'Not specified'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Region:</span>
+                      <span className="text-sm">{wine.region || 'Not specified'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Country:</span>
+                      <span className="text-sm">{wine.country || 'Not specified'}</span>
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
