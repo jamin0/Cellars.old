@@ -14,6 +14,8 @@ export const getCategoryColor = (category: string): string => {
       return "#92400e"; // Amber
     case WineCategory.CIDER:
       return "#65a30d"; // Green
+    case WineCategory.WHISKIES:
+      return "#b45309"; // Amber/Whisky color
     case WineCategory.OTHER:
     default:
       return "#475569"; // Slate
@@ -34,6 +36,8 @@ export const getCategoryIcon = (category: string): string => {
       return "🍺";
     case WineCategory.CIDER:
       return "🍎";
+    case WineCategory.WHISKIES:
+      return "🥃";
     case WineCategory.OTHER:
     default:
       return "🥤";

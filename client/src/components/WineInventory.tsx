@@ -55,7 +55,7 @@ export default function WineInventory({ wines, viewMode = "grid" }: WineInventor
   // Sort categories in a specific order
   const sortedCategories = useMemo(() => {
     const categoryOrder: WineCategoryType[] = [
-      "Red", "White", "Rose", "Fortified", "Beer", "Cider", "Other"
+      "Red", "White", "Rose", "Fortified", "Beer", "Cider", "Whiskies", "Other"
     ];
     
     return Object.keys(winesByCategory).sort(
