@@ -21,6 +21,11 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
   
   const { data: searchResults, isLoading } = useQuery<WineCatalog[]>({
     queryKey: ["/api/catalog/search", searchTerm],
+    queryFn: async () => {
+      const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(searchTerm)}`);
+      if (!res.ok) throw new Error('Failed to search wine catalog');
+      return res.json();
+    },
     enabled: searchTerm.length > 2,
   });
   
