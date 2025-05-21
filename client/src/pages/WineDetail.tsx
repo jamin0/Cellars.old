@@ -22,11 +22,20 @@ export default function WineDetail() {
   const { toast } = useToast();
   const id = params?.id ? parseInt(params.id) : null;
   
+  // Main wine data states
   const [vintageStocks, setVintageStocks] = useState<VintageStock[]>([]);
   const [totalStock, setTotalStock] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [notes, setNotes] = useState("");
   const [rating, setRating] = useState<number | null>(null);
+  
+  // Additional editable fields
+  const [name, setName] = useState("");
+  const [wineType, setWineType] = useState<string | null>(null);
+  const [subType, setSubType] = useState<string | null>(null);
+  const [producer, setProducer] = useState<string | null>(null);
+  const [region, setRegion] = useState<string | null>(null);
+  const [country, setCountry] = useState<string | null>(null);
   
   const isVintageApplicable = (category?: string) => {
     if (!category) return false;
@@ -57,6 +66,14 @@ export default function WineDetail() {
   useEffect(() => {
     if (wine) {
       console.log("Wine data loaded:", wine);
+      
+      // Set main wine details
+      setName(wine.name);
+      setWineType(wine.wine);
+      setSubType(wine.subType);
+      setProducer(wine.producer);
+      setRegion(wine.region);
+      setCountry(wine.country);
       
       // Set vintage stocks, ensuring it's an array
       const stocks = Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [];
@@ -186,13 +203,40 @@ export default function WineDetail() {
     );
   }
   
-  // Display vintages if available, otherwise show the earliest vintage if applicable
-  const displayVintageInfo = () => {
-    if (vintageStocks.length > 0) {
-      const sortedVintages = [...vintageStocks].sort((a, b) => a.vintage - b.vintage);
-      return `${sortedVintages[0].vintage}${sortedVintages.length > 1 ? ` - ${sortedVintages[sortedVintages.length - 1].vintage}` : ''}`;
+  // Handle form field changes
+  const handleFieldChange = (field: string, value: string | null) => {
+    switch (field) {
+      case 'name':
+        setName(value as string);
+        break;
+      case 'wine':
+        setWineType(value);
+        break;
+      case 'subType':
+        setSubType(value);
+        break;
+      case 'producer':
+        setProducer(value);
+        break;
+      case 'region':
+        setRegion(value);
+        break;
+      case 'country':
+        setCountry(value);
+        break;
     }
-    return null;
+  };
+  
+  // Save all edited fields
+  const handleSaveDetails = () => {
+    updateMutation.mutate({
+      name,
+      wine: wineType,
+      subType,
+      producer,
+      region,
+      country
+    });
   };
   
   return (
@@ -216,17 +260,46 @@ export default function WineDetail() {
                 >
                   {wine.category}
                 </Badge>
-                {displayVintageInfo() && (
-                  <Badge variant="outline">{displayVintageInfo()}</Badge>
-                )}
+                {/* Show individual vintage badges */}
+                {vintageStocks.length > 0 && vintageStocks.map(vs => (
+                  <Badge key={vs.vintage} variant="outline">{vs.vintage}</Badge>
+                ))}
               </div>
-              <CardTitle className="text-2xl">{wine.name}</CardTitle>
-              {wine.producer && (
-                <p className="text-muted-foreground">{wine.producer}</p>
+              
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => handleFieldChange('name', e.target.value)}
+                  className="text-2xl font-bold w-full border-b border-primary focus:outline-none mb-2"
+                />
+              ) : (
+                <CardTitle className="text-2xl">{wine.name}</CardTitle>
+              )}
+              
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={producer || ''}
+                  onChange={(e) => handleFieldChange('producer', e.target.value)}
+                  placeholder="Producer"
+                  className="text-muted-foreground w-full focus:outline-none"
+                />
+              ) : (
+                wine.producer && <p className="text-muted-foreground">{wine.producer}</p>
               )}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" onClick={() => setIsEditing(!isEditing)}>
+              <Button 
+                variant={isEditing ? "default" : "outline"} 
+                size="icon" 
+                onClick={() => {
+                  if (isEditing) {
+                    handleSaveDetails();
+                  }
+                  setIsEditing(!isEditing);
+                }}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
               <AlertDialog>
@@ -260,25 +333,61 @@ export default function WineDetail() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium">Wine Details</h3>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Wine Type:</span>
-                      <span className="text-sm">{wine.wine || 'Not specified'}</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={wineType || ''}
+                          onChange={(e) => handleFieldChange('wine', e.target.value)}
+                          placeholder="Wine Type"
+                          className="text-sm p-1 border rounded w-1/2 text-right"
+                        />
+                      ) : (
+                        <span className="text-sm">{wine.wine || 'Not specified'}</span>
+                      )}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Sub-Type:</span>
-                      <span className="text-sm">{wine.subType || 'Not specified'}</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={subType || ''}
+                          onChange={(e) => handleFieldChange('subType', e.target.value)}
+                          placeholder="Sub-Type"
+                          className="text-sm p-1 border rounded w-1/2 text-right"
+                        />
+                      ) : (
+                        <span className="text-sm">{wine.subType || 'Not specified'}</span>
+                      )}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium">Producer:</span>
-                      <span className="text-sm">{wine.producer || 'Not specified'}</span>
-                    </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Region:</span>
-                      <span className="text-sm">{wine.region || 'Not specified'}</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={region || ''}
+                          onChange={(e) => handleFieldChange('region', e.target.value)}
+                          placeholder="Region"
+                          className="text-sm p-1 border rounded w-1/2 text-right"
+                        />
+                      ) : (
+                        <span className="text-sm">{wine.region || 'Not specified'}</span>
+                      )}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Country:</span>
-                      <span className="text-sm">{wine.country || 'Not specified'}</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={country || ''}
+                          onChange={(e) => handleFieldChange('country', e.target.value)}
+                          placeholder="Country"
+                          className="text-sm p-1 border rounded w-1/2 text-right"
+                        />
+                      ) : (
+                        <span className="text-sm">{wine.country || 'Not specified'}</span>
+                      )}
                     </div>
                   </div>
                   
@@ -289,9 +398,15 @@ export default function WineDetail() {
                       <span className="text-sm font-bold">{totalStock} bottles</span>
                     </div>
                     {isVintageApplicable(wine.category) && vintageStocks.length > 0 && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-start">
                         <span className="text-sm font-medium">Vintages:</span>
-                        <span className="text-sm">{vintageStocks.length} different years</span>
+                        <div className="text-sm text-right">
+                          {vintageStocks.sort((a, b) => a.vintage - b.vintage).map((vs, index) => (
+                            <div key={vs.vintage}>
+                              {vs.vintage}: {vs.stock} bottle{vs.stock !== 1 ? 's' : ''}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     <div className="flex justify-between">
