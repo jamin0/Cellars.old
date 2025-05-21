@@ -91,7 +91,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(updatedWine);
     } catch (err) {
-      res.status(500).json({ message: "Failed to update wine" });
+      console.error("Error updating wine:", err);
+      res.status(500).json({ message: "Failed to update wine", error: err instanceof Error ? err.message : String(err) });
     }
   });
 
