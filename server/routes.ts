@@ -1,15 +1,31 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertWineSchema } from "@shared/schema";
 import path from "path";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Wine Inventory API Routes
-  // Get all wines
-  app.get("/api/wines", async (req, res) => {
+  // Setup Replit Auth
+  await setupAuth(app);
+  
+  // Auth endpoint to get current user
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const wines = await storage.getWines();
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+  // Wine Inventory API Routes
+  // Get all wines (user-specific if authenticated)
+  app.get("/api/wines", async (req: any, res) => {
+    try {
+      const userId = req.isAuthenticated() ? req.user.claims.sub : undefined;
+      const wines = await storage.getWines(userId);
       res.json(wines);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch wines" });
@@ -35,19 +51,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get wines by category
-  app.get("/api/wines/category/:category", async (req, res) => {
+  // Get wines by category (user-specific if authenticated)
+  app.get("/api/wines/category/:category", async (req: any, res) => {
     try {
       const { category } = req.params;
-      const wines = await storage.getWinesByCategory(category);
+      const userId = req.isAuthenticated() ? req.user.claims.sub : undefined;
+      const wines = await storage.getWinesByCategory(category, userId);
       res.json(wines);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch wines by category" });
     }
   });
 
-  // Add a new wine
-  app.post("/api/wines", async (req, res) => {
+  // Add a new wine (requires authentication)
+  app.post("/api/wines", isAuthenticated, async (req: any, res) => {
     try {
       const parseResult = insertWineSchema.safeParse(req.body);
       
@@ -57,10 +74,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: parseResult.error.format() 
         });
       }
+      
+      // Add the user ID to the wine data
+      const wineData = {
+        ...parseResult.data,
+        userId: req.user.claims.sub
+      };
 
-      const newWine = await storage.addWine(parseResult.data);
+      const newWine = await storage.addWine(wineData);
       res.status(201).json(newWine);
     } catch (err) {
+      console.error("Error adding wine:", err);
       res.status(500).json({ message: "Failed to add wine" });
     }
   });
