@@ -16,10 +16,14 @@ import { eq, or, sql } from 'drizzle-orm';
 
 // Modify the interface with needed CRUD methods
 export interface IStorage {
+  // User management
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
   // Wine inventory management
-  getWines(): Promise<Wine[]>;
+  getWines(userId?: string): Promise<Wine[]>; // Add userId parameter
   getWineById(id: number): Promise<Wine | undefined>;
-  getWinesByCategory(category: string): Promise<Wine[]>;
+  getWinesByCategory(category: string, userId?: string): Promise<Wine[]>; // Add userId parameter
   addWine(wine: InsertWine): Promise<Wine>;
   updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined>;
   deleteWine(id: number): Promise<boolean>;
