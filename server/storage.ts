@@ -200,13 +200,14 @@ export class DatabaseStorage implements IStorage {
   async searchWineCatalog(query: string): Promise<WineCatalog[]> {
     if (query.length < 3) return [];
     
-    const lowerQuery = query.toLowerCase();
+    // Use ilike for case-insensitive search
+    const searchPattern = `%${query}%`;
     const result = await db.select().from(wineCatalog).where(
       or(
-        sql`lower(${wineCatalog.name}) like ${`%${lowerQuery}%`}`,
-        sql`lower(${wineCatalog.producer}) like ${`%${lowerQuery}%`}`,
-        sql`lower(${wineCatalog.region}) like ${`%${lowerQuery}%`}`,
-        sql`lower(${wineCatalog.country}) like ${`%${lowerQuery}%`}`
+        sql`${wineCatalog.name} ilike ${searchPattern}`,
+        sql`${wineCatalog.producer} ilike ${searchPattern}`,
+        sql`${wineCatalog.region} ilike ${searchPattern}`,
+        sql`${wineCatalog.country} ilike ${searchPattern}`
       )
     );
     return result;
