@@ -31,7 +31,23 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
   // Handle selection of a wine from catalog
   const handleSelectWine = (wine: WineCatalog) => {
     // Navigate to add wine page with selected wine data
-    navigate(`/add?wine=${encodeURIComponent(JSON.stringify(wine))}`);
+    const cleanWine = {
+      id: wine.id,
+      name: wine.name,
+      category: wine.category,
+      producer: wine.producer,
+      region: wine.region,
+      country: wine.country
+    };
+    
+    // Log the wine being selected
+    console.log("Selected wine for add form:", cleanWine);
+    
+    // Use localStorage to help pass the data reliably
+    localStorage.setItem('selected_wine', JSON.stringify(cleanWine));
+    
+    // Navigate to add wine page
+    navigate(`/add`);
     setOpen(false);
   };
   

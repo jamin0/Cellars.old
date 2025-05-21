@@ -21,34 +21,36 @@ export default function AddWine() {
   const [isVintageApplicable, setIsVintageApplicable] = useState(false);
   const { toast } = useToast();
   
-  // Parse the query parameter for wine data from catalog search
-  const getWineDataFromUrl = (): WineCatalog | null => {
+  // Get the wine data from localStorage (added by the search component)
+  const getSelectedWineData = (): WineCatalog | null => {
     try {
-      if (location.includes('?wine=')) {
-        const wineParam = new URLSearchParams(location.split('?')[1]).get('wine');
-        if (wineParam) {
-          return JSON.parse(decodeURIComponent(wineParam));
-        }
+      const savedWine = localStorage.getItem('selected_wine');
+      if (savedWine) {
+        const parsedWine = JSON.parse(savedWine);
+        console.log("Retrieved wine data from localStorage:", parsedWine);
+        // Clear localStorage after getting the data
+        localStorage.removeItem('selected_wine');
+        return parsedWine;
       }
       return null;
     } catch (error) {
-      console.error("Error parsing wine data from URL:", error);
+      console.error("Error retrieving wine data:", error);
       return null;
     }
   };
   
-  const catalogWine = getWineDataFromUrl();
+  const catalogWine = getSelectedWineData();
   
   // Setup form with default values or values from search selection
   const form = useForm<InsertWine>({
     resolver: zodResolver(wineFormSchema),
     defaultValues: {
       name: catalogWine?.name || "",
-      category: catalogWine?.category as WineCategory || WineCategory.RED,
+      category: catalogWine?.category as keyof typeof WineCategory || "Red",
       producer: catalogWine?.producer || "",
       region: catalogWine?.region || "",
       country: catalogWine?.country || "",
-      stockLevel: 0,
+      stockLevel: 1, // Default to 1 bottle for better user experience
       description: "",
       vintageStocks: [],
     },
