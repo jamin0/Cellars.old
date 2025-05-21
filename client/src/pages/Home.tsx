@@ -54,8 +54,8 @@ export default function Home() {
             <h1 className="text-3xl font-bold">My Wine Collection</h1>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-3/4">
+          <div className="flex flex-col gap-4">
+            <div className="w-full">
               <div className="flex flex-col gap-4">
                 <div className="relative">
                   <Input
@@ -150,22 +150,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="w-full md:w-1/4">
-              <CategoryFilter 
-                selectedCategory={selectedCategory} 
-                onSelectCategory={setSelectedCategory}
-                categories={[
-                  "All", 
-                  WineCategory.RED, 
-                  WineCategory.WHITE, 
-                  WineCategory.ROSE, 
-                  WineCategory.FORTIFIED, 
-                  WineCategory.BEER, 
-                  WineCategory.CIDER, 
-                  WineCategory.OTHER
-                ]}
-              />
-            </div>
+            {/* Category filter has been removed as requested */}
           </div>
         </div>
       </main>

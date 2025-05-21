@@ -42,9 +42,9 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors mb-2">
           <CardContent className="p-4">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex justify-between mb-1">
                 <h3 className="font-medium">{name}</h3>
-                <span className="text-sm font-medium">{stockLevel}</span>
+                <span className="text-sm font-medium self-start">{stockLevel}</span>
               </div>
               {secondLineDisplay && (
                 <div className="text-sm italic text-muted-foreground">
@@ -63,9 +63,9 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
     <Link href={`/wine/${id}`}>
       <Card className="cursor-pointer hover:bg-muted/50 transition-colors h-full flex flex-col">
         <CardContent className="p-4 flex-1">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex justify-between mb-2">
             <h3 className="font-medium text-lg">{name}</h3>
-            <span className="text-sm font-medium">{stockLevel}</span>
+            <span className="text-sm font-medium self-start">{stockLevel}</span>
           </div>
           {secondLineDisplay && (
             <div className="text-sm italic text-muted-foreground">
