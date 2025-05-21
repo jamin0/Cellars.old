@@ -147,7 +147,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
             <FormItem>
               <FormLabel>Region</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Bordeaux" {...field} />
+                <Input placeholder="e.g., Bordeaux" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -161,7 +161,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
             <FormItem>
               <FormLabel>Country</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., France" {...field} />
+                <Input placeholder="e.g., France" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -180,7 +180,8 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
                 placeholder="Your personal notes about this wine..." 
                 className="resize-none" 
                 rows={3}
-                {...field} 
+                {...field}
+                value={field.value ?? ''} 
               />
             </FormControl>
             <FormMessage />
