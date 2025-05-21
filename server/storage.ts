@@ -10,6 +10,8 @@ import fs from 'fs';
 import { createReadStream } from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse';
+import { db } from './db';
+import { eq, or, sql } from 'drizzle-orm';
 
 // Modify the interface with needed CRUD methods
 export interface IStorage {
@@ -143,4 +145,132 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  constructor() {
+    // When the database storage is initialized, we'll try to load the catalog
+    this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
+      .catch(err => console.error('Failed to load wine catalog:', err));
+  }
+
+  // Wine Inventory Methods
+  async getWines(): Promise<Wine[]> {
+    const result = await db.select().from(schema.wines);
+    return result;
+  }
+
+  async getWineById(id: number): Promise<Wine | undefined> {
+    const [wine] = await db.select().from(schema.wines).where(eq(schema.wines.id, id));
+    return wine;
+  }
+
+  async getWinesByCategory(category: string): Promise<Wine[]> {
+    const result = await db.select().from(schema.wines).where(eq(schema.wines.category, category));
+    return result;
+  }
+
+  async addWine(wine: InsertWine): Promise<Wine> {
+    const now = new Date().toISOString();
+    const [result] = await db.insert(schema.wines).values({
+      ...wine,
+      vintageStocks: Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [],
+      createdAt: now
+    }).returning();
+    return result;
+  }
+
+  async updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined> {
+    const [result] = await db.update(schema.wines)
+      .set(wine)
+      .where(eq(schema.wines.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteWine(id: number): Promise<boolean> {
+    const result = await db.delete(schema.wines).where(eq(schema.wines.id, id));
+    return result.count > 0;
+  }
+
+  // Wine Catalog Methods (from CSV)
+  async getWineCatalog(): Promise<WineCatalog[]> {
+    const result = await db.select().from(schema.wineCatalog);
+    return result;
+  }
+
+  async searchWineCatalog(query: string): Promise<WineCatalog[]> {
+    const lowerQuery = query.toLowerCase();
+    const result = await db.select().from(schema.wineCatalog).where(
+      or(
+        sql`lower(${schema.wineCatalog.name}) like ${`%${lowerQuery}%`}`,
+        sql`lower(${schema.wineCatalog.producer}) like ${`%${lowerQuery}%`}`
+      )
+    );
+    return result;
+  }
+
+  async loadWineCatalogFromCSV(filePath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Make sure the data directory exists
+        const dir = path.dirname(filePath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
+        // Create an empty CSV file if it doesn't exist
+        if (!fs.existsSync(filePath)) {
+          fs.writeFileSync(filePath, 'name,category,producer,region,country\n');
+          resolve();
+          return;
+        }
+
+        const parser = parse({
+          columns: true,
+          skip_empty_lines: true,
+          trim: true
+        });
+
+        const wines: InsertWineCatalog[] = [];
+
+        parser.on('readable', () => {
+          let record;
+          while ((record = parser.read()) !== null) {
+            wines.push({
+              name: record.name || '',
+              category: record.category || 'Other',
+              producer: record.producer || null,
+              region: record.region || null,
+              country: record.country || null
+            });
+          }
+        });
+
+        parser.on('error', (err) => {
+          reject(err);
+        });
+
+        parser.on('end', async () => {
+          try {
+            // First delete all existing catalog items
+            await db.delete(schema.wineCatalog);
+            
+            // Then bulk insert if we have wines
+            if (wines.length > 0) {
+              await db.insert(schema.wineCatalog).values(wines);
+            }
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        createReadStream(filePath).pipe(parser);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+}
+
+// Export an instance of the database storage
+export const storage = new DatabaseStorage();
