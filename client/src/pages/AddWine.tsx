@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation } from "wouter";
-import { wineFormSchema, InsertWine, VintageStock, WineCategory } from "@shared/schema";
+import { useLocation, useRoute } from "wouter";
+import { wineFormSchema, InsertWine, VintageStock, WineCategory, WineCatalog } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -13,20 +13,41 @@ import Header from "@/components/ui/header";
 import WineFormFields from "@/components/WineFormFields";
 import VintageManager from "@/components/VintageManager";
 import { ArrowLeft } from "lucide-react";
+import { getVintageApplicableCategories } from "@/lib/wine-categories";
 
 export default function AddWine() {
   const [, navigate] = useLocation();
+  const [location] = useLocation();
   const [isVintageApplicable, setIsVintageApplicable] = useState(false);
   const { toast } = useToast();
   
+  // Parse the query parameter for wine data from catalog search
+  const getWineDataFromUrl = (): WineCatalog | null => {
+    try {
+      if (location.includes('?wine=')) {
+        const wineParam = new URLSearchParams(location.split('?')[1]).get('wine');
+        if (wineParam) {
+          return JSON.parse(decodeURIComponent(wineParam));
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Error parsing wine data from URL:", error);
+      return null;
+    }
+  };
+  
+  const catalogWine = getWineDataFromUrl();
+  
+  // Setup form with default values or values from search selection
   const form = useForm<InsertWine>({
     resolver: zodResolver(wineFormSchema),
     defaultValues: {
-      name: "",
-      category: WineCategory.RED,
-      producer: "",
-      region: "",
-      country: "",
+      name: catalogWine?.name || "",
+      category: catalogWine?.category as WineCategory || WineCategory.RED,
+      producer: catalogWine?.producer || "",
+      region: catalogWine?.region || "",
+      country: catalogWine?.country || "",
       stockLevel: 0,
       description: "",
       vintageStocks: [],
@@ -36,18 +57,19 @@ export default function AddWine() {
   const watchCategory = form.watch("category");
   
   // Check if the wine category allows vintages
-  useState(() => {
-    const applicableCategories = [WineCategory.RED, WineCategory.WHITE, WineCategory.ROSE];
-    setIsVintageApplicable(applicableCategories.includes(watchCategory));
-  });
+  useEffect(() => {
+    const applicableCategories = getVintageApplicableCategories();
+    setIsVintageApplicable(applicableCategories.includes(watchCategory as WineCategory));
+  }, [watchCategory]);
   
   const onSubmit = async (data: InsertWine) => {
     try {
       // If vintage is applicable but stockLevel > 0 and no vintageStocks,
       // create a default vintage for the current year
       if (isVintageApplicable && data.stockLevel > 0 && (!data.vintageStocks || data.vintageStocks.length === 0)) {
+        const currentYear = new Date().getFullYear();
         data.vintageStocks = [{
-          vintage: new Date().getFullYear(),
+          vintage: currentYear,
           stock: data.stockLevel
         }];
       }
@@ -72,16 +94,28 @@ export default function AddWine() {
   
   // Handle vintage stock changes
   const handleVintageStocksChange = (vintageStocks: VintageStock[]) => {
-    form.setValue("vintageStocks", vintageStocks);
+    // Validate vintage years
+    const currentYear = new Date().getFullYear();
+    const validVintages = vintageStocks.filter(v => v.vintage <= currentYear);
+    
+    if (validVintages.length !== vintageStocks.length) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Vintage Year",
+        description: `Vintage year cannot be later than ${currentYear}`,
+      });
+    }
+    
+    form.setValue("vintageStocks", validVintages);
     
     // Update total stock level based on vintage stocks
-    const totalStock = vintageStocks.reduce((total, item) => total + item.stock, 0);
+    const totalStock = validVintages.reduce((total, item) => total + item.stock, 0);
     form.setValue("stockLevel", totalStock);
   };
   
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header title="Add Wine" />
+      <Header title={catalogWine ? "Add Selected Wine" : "Add Wine"} />
       
       <main className="flex-1 container px-4 py-6 mx-auto">
         <div className="mb-6">
@@ -93,7 +127,14 @@ export default function AddWine() {
         
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className="text-2xl">Add New Wine</CardTitle>
+            <CardTitle className="text-2xl">
+              {catalogWine ? `Add ${catalogWine.name}` : "Add New Wine"}
+            </CardTitle>
+            {catalogWine && (
+              <p className="text-sm text-muted-foreground">
+                Information populated from wine catalog
+              </p>
+            )}
           </CardHeader>
           
           <Form {...form}>

@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { Wine } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import Header from "@/components/ui/header";
 import WineInventory from "@/components/WineInventory";
 import SearchWine from "@/components/SearchWine";
 import CategoryFilter from "@/components/CategoryFilter";
 import { WineCategory, WineCategoryType } from "@shared/schema";
-import { Plus } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<WineCategoryType | "All">("All");
   const [activeView, setActiveView] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [inventoryFilter, setInventoryFilter] = useState("");
 
   // Fetch the wine inventory
   const {
@@ -27,39 +27,55 @@ export default function Home() {
     queryKey: ["/api/wines"],
   });
 
-  // Filter wines based on selected category and search query
+  // Filter wines based on selected category and filter text
   const filteredWines = wines?.filter(wine => {
     // Category filter
     const categoryMatch = selectedCategory === "All" || wine.category === selectedCategory;
     
-    // Search filter
-    const searchMatch = !searchQuery || 
-      wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (wine.producer && wine.producer.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Text filter for inventory
+    const filterMatch = !inventoryFilter || 
+      wine.name.toLowerCase().includes(inventoryFilter.toLowerCase()) ||
+      (wine.producer && wine.producer.toLowerCase().includes(inventoryFilter.toLowerCase()));
     
-    return categoryMatch && searchMatch;
+    return categoryMatch && filterMatch;
   });
 
+  const clearFilter = () => {
+    setInventoryFilter("");
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header title="Wine Cellar" />
+    <div className="flex flex-col min-h-screen bg-background text-foreground pb-20">
+      <Header title="Cellars.me" />
       
       <main className="flex-1 container px-4 py-6 mx-auto">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">My Wine Collection</h1>
-            <Link href="/add">
-              <Button className="bg-primary">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Wine
-              </Button>
-            </Link>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-3/4">
               <div className="flex flex-col gap-4">
-                <SearchWine value={searchQuery} onChange={setSearchQuery} />
+                <div className="relative">
+                  <Input
+                    value={inventoryFilter}
+                    onChange={(e) => setInventoryFilter(e.target.value)}
+                    placeholder="Filter your collection..."
+                    className="pl-10"
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  {inventoryFilter && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6"
+                      onClick={clearFilter}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
                 
                 <Tabs defaultValue="inventory" className="w-full">
                   <TabsList className="mb-4">
@@ -153,6 +169,9 @@ export default function Home() {
           </div>
         </div>
       </main>
+      
+      {/* Global search for adding wines from catalog */}
+      <SearchWine value="" onChange={() => {}} />
     </div>
   );
 }

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VintageStock } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface VintageManagerProps {
   vintageStocks: VintageStock[];
@@ -11,10 +12,34 @@ interface VintageManagerProps {
 }
 
 export default function VintageManager({ vintageStocks, onChange }: VintageManagerProps) {
-  const [vintage, setVintage] = useState<number>(new Date().getFullYear());
+  const currentYear = new Date().getFullYear();
+  const [vintage, setVintage] = useState<number>(currentYear);
   const [stock, setStock] = useState<number>(1);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  
+  // Validate vintage input
+  useEffect(() => {
+    if (vintage > currentYear) {
+      setError(`Vintage cannot be later than ${currentYear}`);
+    } else if (vintage < 1900) {
+      setError("Vintage must be at least 1900");
+    } else {
+      setError(null);
+    }
+  }, [vintage, currentYear]);
   
   const handleAddVintage = () => {
+    // Check if vintage is valid
+    if (vintage > currentYear) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Vintage Year",
+        description: `Vintage year cannot be later than ${currentYear}`,
+      });
+      return;
+    }
+    
     // Check if vintage already exists
     const exists = vintageStocks.some(vs => vs.vintage === vintage);
     
@@ -52,6 +77,16 @@ export default function VintageManager({ vintageStocks, onChange }: VintageManag
             : vs
         )
       );
+    }
+  };
+  
+  const handleVintageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    // Don't update if the input is empty (so the user can delete and type a new value)
+    if (!isNaN(value)) {
+      setVintage(value);
+    } else if (e.target.value === '') {
+      setVintage(0); // Temporary value to allow clearing the input
     }
   };
   
@@ -106,15 +141,23 @@ export default function VintageManager({ vintageStocks, onChange }: VintageManag
       <div className="pt-2 flex flex-wrap items-end gap-2">
         <div>
           <Label htmlFor="vintage" className="text-xs">Vintage Year</Label>
-          <Input
-            id="vintage"
-            type="number"
-            min={1900}
-            max={new Date().getFullYear()}
-            value={vintage}
-            onChange={(e) => setVintage(parseInt(e.target.value) || new Date().getFullYear())}
-            className="w-24"
-          />
+          <div className="relative">
+            <Input
+              id="vintage"
+              type="number"
+              min={1900}
+              max={currentYear}
+              value={vintage || ''}
+              onChange={handleVintageChange}
+              className={`w-24 ${error ? 'border-destructive' : ''}`}
+            />
+            {error && (
+              <div className="absolute top-full mt-1 text-destructive text-xs flex items-center">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                {error}
+              </div>
+            )}
+          </div>
         </div>
         <div>
           <Label htmlFor="stock" className="text-xs">Bottles</Label>
@@ -132,6 +175,7 @@ export default function VintageManager({ vintageStocks, onChange }: VintageManag
           size="sm" 
           onClick={handleAddVintage}
           className="mb-0.5"
+          disabled={!!error}
         >
           Add Vintage
         </Button>
