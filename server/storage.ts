@@ -191,21 +191,22 @@ export class DatabaseStorage implements IStorage {
     console.log("Updating wine with ID:", id, "Data:", wine);
     
     // Validate and sanitize input values for update
-    const updateData: any = {};
+    // Define as any object to avoid type errors in column names
+    const updateData: Record<string, any> = {};
     
     // Handle each field individually to ensure proper typing
     if (wine.name !== undefined) updateData.name = wine.name;
     if (wine.category !== undefined) updateData.category = wine.category;
     if (wine.wine !== undefined) updateData.wine = wine.wine;
-    if (wine.subType !== undefined) updateData.subType = wine.subType;
+    if (wine.subType !== undefined) updateData.sub_type = wine.subType; // Column name is sub_type in DB
     if (wine.producer !== undefined) updateData.producer = wine.producer;
     if (wine.region !== undefined) updateData.region = wine.region;
     if (wine.country !== undefined) updateData.country = wine.country;
     if (wine.description !== undefined) updateData.description = wine.description;
     if (wine.notes !== undefined) updateData.notes = wine.notes;
     if (wine.rating !== undefined) updateData.rating = wine.rating;
-    if (wine.stockLevel !== undefined) updateData.stockLevel = wine.stockLevel;
-    if (wine.imageUrl !== undefined) updateData.imageUrl = wine.imageUrl;
+    if (wine.stockLevel !== undefined) updateData.stock_level = wine.stockLevel; // Column name is stock_level in DB
+    if (wine.imageUrl !== undefined) updateData.image_url = wine.imageUrl; // Column name is image_url in DB
     
     // Handle vintage stocks specially to ensure it's an array
     if (wine.vintageStocks !== undefined) {

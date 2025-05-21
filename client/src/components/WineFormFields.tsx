@@ -108,7 +108,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
             <FormItem>
               <FormLabel>Producer/Winery</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Château Margaux" {...field} />
+                <Input placeholder="e.g., Château Margaux" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
