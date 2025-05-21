@@ -47,6 +47,8 @@ export default function AddWine() {
     defaultValues: {
       name: catalogWine?.name || "",
       category: catalogWine?.category as keyof typeof WineCategory || "Red",
+      wine: catalogWine?.wine || "",      // Include Wine Type
+      subType: catalogWine?.subType || "", // Include Sub-Type
       producer: catalogWine?.producer || "",
       region: catalogWine?.region || "",
       country: catalogWine?.country || "",

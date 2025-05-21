@@ -132,10 +132,14 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
                           <div className="flex flex-col py-1">
                             <span className="font-medium">{wine.name}</span>
                             <div className="flex text-xs text-muted-foreground gap-1">
+                              {wine.wine && <span>{wine.wine}</span>}
+                              {wine.wine && (wine.subType || wine.producer) && <span>·</span>}
+                              {wine.subType && <span>{wine.subType}</span>}
+                              {wine.subType && wine.producer && <span>·</span>}
                               {wine.producer && <span>{wine.producer}</span>}
-                              {wine.producer && wine.region && <span>·</span>}
+                              {(wine.wine || wine.subType || wine.producer) && wine.region && <span>·</span>}
                               {wine.region && <span>{wine.region}</span>}
-                              {(wine.producer || wine.region) && wine.country && <span>·</span>}
+                              {(wine.wine || wine.subType || wine.producer || wine.region) && wine.country && <span>·</span>}
                               {wine.country && <span>{wine.country}</span>}
                             </div>
                           </div>
