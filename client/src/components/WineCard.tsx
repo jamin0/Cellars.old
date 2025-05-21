@@ -32,15 +32,15 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
     return (
       <Link href={`/wine/${id}`}>
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors mb-2">
-          <CardContent className="p-4 flex justify-between items-center">
+          <CardContent className="p-4">
             <div className="flex flex-col">
-              <div className="flex justify-between w-full">
+              <div className="flex items-center justify-between mb-1">
                 <h3 className="font-medium">{name}</h3>
-                <span className="text-sm font-medium">{stockLevel} bottle{stockLevel !== 1 ? 's' : ''}</span>
+                <span className="text-sm font-medium">{stockLevel}</span>
               </div>
               <div className="text-sm italic text-muted-foreground">
                 {wineType && <span>{wineType}</span>}
-                {vintageDisplay && <span>{vintageDisplay && `, ${vintageDisplay}`}</span>}
+                {vintageDisplay && <span>{wineType ? ', ' : ''}{vintageDisplay}</span>}
               </div>
             </div>
           </CardContent>

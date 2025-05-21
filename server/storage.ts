@@ -226,7 +226,7 @@ export class DatabaseStorage implements IStorage {
 
         // Create an empty CSV file if it doesn't exist
         if (!fs.existsSync(filePath)) {
-          fs.writeFileSync(filePath, 'name,category,producer,region,country\n');
+          fs.writeFileSync(filePath, 'NAME,PRODUCER,WINE,COUNTRY,REGION,TYPE,SUB_TYPE\n');
           resolve();
           return;
         }
@@ -243,11 +243,13 @@ export class DatabaseStorage implements IStorage {
           let record;
           while ((record = parser.read()) !== null) {
             wines.push({
-              name: record.name || '',
-              category: record.category || 'Other',
-              producer: record.producer || null,
-              region: record.region || null,
-              country: record.country || null
+              name: record.NAME || record.name || '',
+              category: record.TYPE || record.category || 'Other',
+              wine: record.WINE || record.wine || null,
+              subType: record.SUB_TYPE || record.subType || null,
+              producer: record.PRODUCER || record.producer || null,
+              region: record.REGION || record.region || null,
+              country: record.COUNTRY || record.country || null
             });
           }
         });
