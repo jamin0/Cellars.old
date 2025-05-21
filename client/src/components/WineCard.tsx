@@ -28,6 +28,14 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
     return activeVintages.map(v => `${v.vintage}`).join(", ");
   }, [activeVintages]);
   
+  // Format second line display - Wine Type and Vintages in italics
+  const secondLineDisplay = useMemo(() => {
+    const parts = [];
+    if (wineType) parts.push(wineType);
+    if (vintageDisplay) parts.push(vintageDisplay);
+    return parts.join(', ');
+  }, [wineType, vintageDisplay]);
+  
   if (viewMode === "list") {
     return (
       <Link href={`/wine/${id}`}>
@@ -38,10 +46,11 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
                 <h3 className="font-medium">{name}</h3>
                 <span className="text-sm font-medium">{stockLevel}</span>
               </div>
-              <div className="text-sm italic text-muted-foreground">
-                {wineType && <span>{wineType}</span>}
-                {vintageDisplay && <span>{wineType ? ', ' : ''}{vintageDisplay}</span>}
-              </div>
+              {secondLineDisplay && (
+                <div className="text-sm italic text-muted-foreground">
+                  {secondLineDisplay}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -58,10 +67,11 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
             <h3 className="font-medium text-lg">{name}</h3>
             <span className="text-sm font-medium">{stockLevel}</span>
           </div>
-          <div className="text-sm italic text-muted-foreground">
-            {wineType && <span>{wineType}</span>}
-            {vintageDisplay && <span>{wineType ? ', ' : ''}{vintageDisplay}</span>}
-          </div>
+          {secondLineDisplay && (
+            <div className="text-sm italic text-muted-foreground">
+              {secondLineDisplay}
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

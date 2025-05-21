@@ -287,7 +287,11 @@ export default function WineDetail() {
                       <span className="text-sm font-medium">Added on:</span>
                       <span className="text-sm">
                         {wine.createdAt && typeof wine.createdAt === 'string' 
-                          ? new Date(wine.createdAt).toLocaleDateString() 
+                          ? new Date(wine.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })
                           : 'Recently added'}
                       </span>
                     </div>

@@ -63,7 +63,7 @@ export default function AddWine() {
   // Check if the wine category allows vintages
   useEffect(() => {
     const applicableCategories = getVintageApplicableCategories();
-    setIsVintageApplicable(applicableCategories.includes(watchCategory as WineCategory));
+    setIsVintageApplicable(applicableCategories.includes(watchCategory as typeof WineCategory[keyof typeof WineCategory]));
   }, [watchCategory]);
   
   const onSubmit = async (data: InsertWine) => {
