@@ -63,14 +63,12 @@ export default function Home() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">My Wine Collection</h1>
-            <Link href="/add-wine">
-              <a>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Wine
-                </Button>
-              </a>
-            </Link>
+            <Button asChild className="flex items-center gap-2">
+              <Link href="/add-wine">
+                <Plus className="h-4 w-4" />
+                Add Wine
+              </Link>
+            </Button>
           </div>
 
           <div className="flex flex-col gap-4">

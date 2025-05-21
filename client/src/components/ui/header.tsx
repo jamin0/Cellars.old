@@ -16,11 +16,9 @@ export default function Header({ title = "Wine Cellar" }: HeaderProps) {
     <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/">
-            <a className="flex items-center gap-2">
-              <Wine className="h-6 w-6 text-primary" />
-              <span className="font-medium">{title}</span>
-            </a>
+          <Link href="/" className="flex items-center gap-2">
+            <Wine className="h-6 w-6 text-primary" />
+            <span className="font-medium">{title}</span>
           </Link>
         </div>
         
@@ -36,18 +34,18 @@ export default function Header({ title = "Wine Cellar" }: HeaderProps) {
               <span className="hidden md:inline text-sm font-medium">
                 {user?.firstName || 'User'}
               </span>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="/api/logout" title="Log out">
+              <a href="/api/logout" title="Log out">
+                <Button variant="ghost" size="icon">
                   <LogOut className="h-5 w-5" />
-                </a>
-              </Button>
+                </Button>
+              </a>
             </div>
           ) : (
-            <Button variant="ghost" size="icon" asChild>
-              <a href="/api/login" title="Log in">
+            <a href="/api/login" title="Log in">
+              <Button variant="ghost" size="icon">
                 <LogIn className="h-5 w-5" />
-              </a>
-            </Button>
+              </Button>
+            </a>
           )}
           <ThemeToggle />
         </div>
