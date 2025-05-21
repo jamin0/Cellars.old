@@ -32,12 +32,19 @@ export default function Home() {
     // Category filter
     const categoryMatch = selectedCategory === "All" || wine.category === selectedCategory;
     
-    // Text filter for inventory - search by name, producer, wine type and sub-type
-    const filterMatch = !inventoryFilter || 
-      wine.name.toLowerCase().includes(inventoryFilter.toLowerCase()) ||
-      (wine.producer && wine.producer.toLowerCase().includes(inventoryFilter.toLowerCase())) ||
-      (wine.wine && wine.wine.toLowerCase().includes(inventoryFilter.toLowerCase())) ||
-      (wine.subType && wine.subType.toLowerCase().includes(inventoryFilter.toLowerCase()));
+    // Text filter for inventory - search by name, producer, wine type, sub-type, region, country and vintages
+    const searchTerm = inventoryFilter.toLowerCase();
+    const filterMatch = !searchTerm || 
+      wine.name.toLowerCase().includes(searchTerm) ||
+      (wine.producer && wine.producer.toLowerCase().includes(searchTerm)) ||
+      (wine.wine && wine.wine.toLowerCase().includes(searchTerm)) ||
+      (wine.subType && wine.subType.toLowerCase().includes(searchTerm)) ||
+      (wine.region && wine.region.toLowerCase().includes(searchTerm)) ||
+      (wine.country && wine.country.toLowerCase().includes(searchTerm)) ||
+      // Search in vintages if they exist
+      (Array.isArray(wine.vintageStocks) && wine.vintageStocks.some(vs => 
+        vs.vintage.toString().includes(searchTerm)
+      ));
     
     return categoryMatch && filterMatch;
   });
