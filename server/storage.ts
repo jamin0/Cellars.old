@@ -1,14 +1,11 @@
 import { 
   wines, 
-  wineCatalog,
-  users,
+  wineCatalog, 
   type Wine, 
   type InsertWine, 
   type WineCatalog, 
   type InsertWineCatalog,
-  type VintageStock,
-  type User,
-  type UpsertUser
+  type VintageStock
 } from "@shared/schema";
 import fs from 'fs';
 import { createReadStream } from 'fs';
@@ -19,14 +16,10 @@ import { eq, or, sql } from 'drizzle-orm';
 
 // Modify the interface with needed CRUD methods
 export interface IStorage {
-  // User management
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  
   // Wine inventory management
-  getWines(userId?: string): Promise<Wine[]>; // Add userId parameter
+  getWines(): Promise<Wine[]>;
   getWineById(id: number): Promise<Wine | undefined>;
-  getWinesByCategory(category: string, userId?: string): Promise<Wine[]>; // Add userId parameter
+  getWinesByCategory(category: string): Promise<Wine[]>;
   addWine(wine: InsertWine): Promise<Wine>;
   updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined>;
   deleteWine(id: number): Promise<boolean>;
@@ -40,38 +33,18 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private wineStore: Map<number, Wine>;
   private catalogStore: Map<number, WineCatalog>;
-  private userStore: Map<string, User>;
   private wineCurrentId: number;
   private catalogCurrentId: number;
 
   constructor() {
     this.wineStore = new Map();
     this.catalogStore = new Map();
-    this.userStore = new Map();
     this.wineCurrentId = 1;
     this.catalogCurrentId = 1;
 
     // Try to load the wine catalog from CSV on initialization
     this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
       .catch(err => console.error('Failed to load wine catalog:', err));
-  }
-  
-  // User management methods
-  async getUser(id: string): Promise<User | undefined> {
-    return this.userStore.get(id);
-  }
-  
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const existingUser = this.userStore.get(userData.id);
-    
-    const user: User = {
-      ...userData,
-      createdAt: existingUser?.createdAt || new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.userStore.set(userData.id, user);
-    return user;
   }
 
   // Wine Inventory Methods
@@ -179,36 +152,11 @@ export class DatabaseStorage implements IStorage {
     this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
       .catch(err => console.error('Failed to load wine catalog:', err));
   }
-  
-  // User management methods
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-  
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
-  }
 
   // Wine Inventory Methods
-  async getWines(userId?: string): Promise<Wine[]> {
-    if (userId) {
-      return await db.select().from(wines)
-        .where(eq(wines.userId, userId))
-        .orderBy(wines.name);
-    }
-    return await db.select().from(wines);
+  async getWines(): Promise<Wine[]> {
+    const result = await db.select().from(wines);
+    return result;
   }
 
   async getWineById(id: number): Promise<Wine | undefined> {
@@ -216,14 +164,9 @@ export class DatabaseStorage implements IStorage {
     return wine;
   }
 
-  async getWinesByCategory(category: string, userId?: string): Promise<Wine[]> {
-    if (userId) {
-      return await db.select()
-        .from(wines)
-        .where(eq(wines.category, category))
-        .where(eq(wines.userId, userId));
-    }
-    return await db.select().from(wines).where(eq(wines.category, category));
+  async getWinesByCategory(category: string): Promise<Wine[]> {
+    const result = await db.select().from(wines).where(eq(wines.category, category));
+    return result;
   }
 
   async addWine(wine: InsertWine): Promise<Wine> {

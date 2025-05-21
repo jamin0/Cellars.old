@@ -1,14 +1,4 @@
-import { 
-  pgTable, 
-  text, 
-  serial, 
-  integer, 
-  json,
-  varchar,
-  timestamp,
-  jsonb,
-  index
-} from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -32,37 +22,9 @@ export interface VintageStock {
   stock: number;
 }
 
-// User schema
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type User = typeof users.$inferSelect;
-export type UpsertUser = typeof users.$inferInsert;
-
-// Sessions table for auth
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => ({
-    expireIdx: index("IDX_session_expire").on(table.expire),
-  }),
-);
-
-// Wine schema - now with userId foreign key
+// Wine schema
 export const wines = pgTable("wines", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(), // Foreign key to user
   name: text("name").notNull(),
   category: text("category").notNull(),
   wine: text("wine"), // The specific wine name/type

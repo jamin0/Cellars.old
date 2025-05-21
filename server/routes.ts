@@ -1,31 +1,15 @@
-import type { Express, Request } from "express";
+import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertWineSchema } from "@shared/schema";
 import path from "path";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup Replit Auth
-  await setupAuth(app);
-  
-  // Auth endpoint to get current user
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
   // Wine Inventory API Routes
-  // Get all wines (user-specific if authenticated)
-  app.get("/api/wines", async (req: any, res) => {
+  // Get all wines
+  app.get("/api/wines", async (req, res) => {
     try {
-      const userId = req.isAuthenticated() ? req.user.claims.sub : undefined;
-      const wines = await storage.getWines(userId);
+      const wines = await storage.getWines();
       res.json(wines);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch wines" });
@@ -51,20 +35,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get wines by category (user-specific if authenticated)
-  app.get("/api/wines/category/:category", async (req: any, res) => {
+  // Get wines by category
+  app.get("/api/wines/category/:category", async (req, res) => {
     try {
       const { category } = req.params;
-      const userId = req.isAuthenticated() ? req.user.claims.sub : undefined;
-      const wines = await storage.getWinesByCategory(category, userId);
+      const wines = await storage.getWinesByCategory(category);
       res.json(wines);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch wines by category" });
     }
   });
 
-  // Add a new wine (requires authentication)
-  app.post("/api/wines", isAuthenticated, async (req: any, res) => {
+  // Add a new wine
+  app.post("/api/wines", async (req, res) => {
     try {
       const parseResult = insertWineSchema.safeParse(req.body);
       
@@ -74,38 +57,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: parseResult.error.format() 
         });
       }
-      
-      // Add the user ID to the wine data
-      const wineData = {
-        ...parseResult.data,
-        userId: req.user.claims.sub
-      };
 
-      const newWine = await storage.addWine(wineData);
+      const newWine = await storage.addWine(parseResult.data);
       res.status(201).json(newWine);
     } catch (err) {
-      console.error("Error adding wine:", err);
       res.status(500).json({ message: "Failed to add wine" });
     }
   });
 
-  // Update an existing wine (requires authentication)
-  app.patch("/api/wines/:id", isAuthenticated, async (req: any, res) => {
+  // Update an existing wine
+  app.patch("/api/wines/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid wine ID" });
-      }
-
-      // First check if the wine exists and belongs to the user
-      const wine = await storage.getWineById(id);
-      if (!wine) {
-        return res.status(404).json({ message: "Wine not found" });
-      }
-      
-      // Verify ownership - user can only update their own wines
-      if (wine.userId !== req.user.claims.sub) {
-        return res.status(403).json({ message: "You don't have permission to update this wine" });
       }
 
       // We only validate the fields that were provided
@@ -120,6 +85,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedWine = await storage.updateWine(id, parseResult.data);
+      if (!updatedWine) {
+        return res.status(404).json({ message: "Wine not found" });
+      }
+
       res.json(updatedWine);
     } catch (err) {
       console.error("Error updating wine:", err);
@@ -127,29 +96,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete a wine (requires authentication)
-  app.delete("/api/wines/:id", isAuthenticated, async (req: any, res) => {
+  // Delete a wine
+  app.delete("/api/wines/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid wine ID" });
       }
 
-      // First check if the wine exists and belongs to the user
-      const wine = await storage.getWineById(id);
-      if (!wine) {
+      const success = await storage.deleteWine(id);
+      if (!success) {
         return res.status(404).json({ message: "Wine not found" });
       }
-      
-      // Verify ownership - user can only delete their own wines
-      if (wine.userId !== req.user.claims.sub) {
-        return res.status(403).json({ message: "You don't have permission to delete this wine" });
-      }
 
-      const success = await storage.deleteWine(id);
       res.status(204).send();
     } catch (err) {
-      console.error("Error deleting wine:", err);
       res.status(500).json({ message: "Failed to delete wine" });
     }
   });

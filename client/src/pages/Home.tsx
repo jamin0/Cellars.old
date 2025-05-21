@@ -9,9 +9,7 @@ import WineInventory from "@/components/WineInventory";
 import SearchWine from "@/components/SearchWine";
 import CategoryFilter from "@/components/CategoryFilter";
 import { WineCategory, WineCategoryType } from "@shared/schema";
-import { Search, X, Plus } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
+import { Search, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Home() {
@@ -63,12 +61,6 @@ export default function Home() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">My Wine Collection</h1>
-            <Button asChild className="flex items-center gap-2">
-              <Link href="/add-wine">
-                <Plus className="h-4 w-4" />
-                Add Wine
-              </Link>
-            </Button>
           </div>
 
           <div className="flex flex-col gap-4">
