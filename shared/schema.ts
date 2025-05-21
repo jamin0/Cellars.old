@@ -35,6 +35,8 @@ export const wines = pgTable("wines", {
   stockLevel: integer("stock_level").default(0),
   vintageStocks: json("vintage_stocks").$type<VintageStock[]>().default([]),
   imageUrl: text("image_url"),
+  rating: integer("rating"), // Rating from 1-5
+  notes: text("notes"), // User's personal tasting notes
   createdAt: text("created_at").default(new Date().toISOString()),
 });
 

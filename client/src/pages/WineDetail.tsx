@@ -34,6 +34,8 @@ export default function WineDetail() {
     return getVintageApplicableCategories().includes(category as any);
   };
   
+  // We'll debug wine data once it's loaded
+  
   // Get the wine details
   const { data: wine, isLoading, isError } = useQuery<Wine>({
     queryKey: ["/api/wines", id],
@@ -60,9 +62,29 @@ export default function WineDetail() {
   
   useEffect(() => {
     if (wine) {
-      setVintageStocks(wine.vintageStocks || []);
-      setTotalStock(wine.stockLevel || 0);
-      setNotes(wine.description || "");
+      // Set vintage stocks, ensuring it's an array
+      const stocks = Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [];
+      setVintageStocks(stocks);
+      
+      // Calculate total stock based on whether we're using vintages or not
+      let total = 0;
+      if (isVintageApplicable(wine.category) && stocks.length > 0) {
+        total = stocks.reduce((sum, vs) => sum + vs.stock, 0);
+      } else {
+        total = wine.stockLevel || 0;
+      }
+      setTotalStock(total);
+      
+      // Set notes and rating
+      setNotes(wine.notes || "");
+      setRating(wine.rating !== null && wine.rating !== undefined ? wine.rating : null);
+      
+      console.log("Loaded wine details:", { 
+        vintageStocks: stocks,
+        notes: wine.notes,
+        rating: wine.rating,
+        totalStock: total
+      });
     }
   }, [wine]);
   
@@ -130,12 +152,12 @@ export default function WineDetail() {
   };
   
   const handleSaveNotes = () => {
-    updateMutation.mutate({ description: notes });
+    updateMutation.mutate({ notes: notes });
   };
   
   const handleRatingChange = (newRating: number) => {
     setRating(newRating);
-    // Rating would need to be added to the schema if implemented
+    updateMutation.mutate({ rating: newRating });
   };
   
   const handleDelete = () => {
