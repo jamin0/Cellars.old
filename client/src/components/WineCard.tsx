@@ -11,16 +11,22 @@ interface WineCardProps {
 }
 
 export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
-  const { id, name, category, producer, stockLevel, vintageStocks = [] } = wine;
+  const { id, name, wine: wineType, subType, producer, stockLevel, vintageStocks = [] } = wine;
   
-  const displayVintage = useMemo(() => {
-    if (!vintageStocks || vintageStocks.length === 0) return null;
-    if (vintageStocks.length === 1) return vintageStocks[0].vintage;
-    
-    // Show range if multiple vintages
-    const years = vintageStocks.map(v => v.vintage).sort();
-    return `${years[0]}-${years[years.length - 1]}`;
+  // Get active vintages (with stock > 0)
+  const activeVintages = useMemo(() => {
+    if (!vintageStocks || vintageStocks.length === 0) return [];
+    return vintageStocks.filter(v => v.stock > 0).sort((a, b) => a.vintage - b.vintage);
   }, [vintageStocks]);
+  
+  // Format vintage display text
+  const vintageDisplay = useMemo(() => {
+    if (activeVintages.length === 0) return "";
+    if (activeVintages.length === 1) return `${activeVintages[0].vintage}`;
+    
+    // Show list for multiple vintages
+    return activeVintages.map(v => `${v.vintage}`).join(", ");
+  }, [activeVintages]);
   
   if (viewMode === "list") {
     return (
@@ -28,22 +34,14 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors mb-2">
           <CardContent className="p-4 flex justify-between items-center">
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <Badge
-                  className="px-1 py-0 text-xs"
-                  style={{ backgroundColor: getCategoryColor(category) }}
-                >
-                  {category}
-                </Badge>
-                {displayVintage && (
-                  <span className="text-xs font-medium">{displayVintage}</span>
-                )}
+              <div className="flex justify-between w-full">
+                <h3 className="font-medium">{name}</h3>
+                <span className="text-sm font-medium">{stockLevel} bottle{stockLevel !== 1 ? 's' : ''}</span>
               </div>
-              <h3 className="font-medium">{name}</h3>
-              {producer && <p className="text-sm text-muted-foreground">{producer}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{stockLevel} bottle{stockLevel !== 1 ? 's' : ''}</span>
+              <div className="text-sm italic text-muted-foreground">
+                {wineType && <span>{wineType}</span>}
+                {vintageDisplay && <span>{vintageDisplay && `, ${vintageDisplay}`}</span>}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -57,21 +55,14 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
       <Card className="cursor-pointer hover:bg-muted/50 transition-colors h-full flex flex-col">
         <CardContent className="p-4 flex-1">
           <div className="flex items-center justify-between mb-2">
-            <Badge
-              style={{ backgroundColor: getCategoryColor(category) }}
-            >
-              {category}
-            </Badge>
-            {displayVintage && (
-              <span className="text-sm font-medium">{displayVintage}</span>
-            )}
+            <h3 className="font-medium text-lg">{name}</h3>
+            <span className="text-sm font-medium">{stockLevel}</span>
           </div>
-          <h3 className="font-medium text-lg">{name}</h3>
-          {producer && <p className="text-sm text-muted-foreground">{producer}</p>}
+          <div className="text-sm italic text-muted-foreground">
+            {wineType && <span>{wineType}</span>}
+            {vintageDisplay && <span>{wineType ? ', ' : ''}{vintageDisplay}</span>}
+          </div>
         </CardContent>
-        <CardFooter className="p-4 pt-0 bg-muted/30">
-          <span className="text-sm">{stockLevel} bottle{stockLevel !== 1 ? 's' : ''}</span>
-        </CardFooter>
       </Card>
     </Link>
   );

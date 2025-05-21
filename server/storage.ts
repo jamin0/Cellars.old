@@ -205,6 +205,8 @@ export class DatabaseStorage implements IStorage {
     const result = await db.select().from(wineCatalog).where(
       or(
         sql`${wineCatalog.name} ilike ${searchPattern}`,
+        sql`${wineCatalog.wine} ilike ${searchPattern}`,
+        sql`${wineCatalog.subType} ilike ${searchPattern}`,
         sql`${wineCatalog.producer} ilike ${searchPattern}`,
         sql`${wineCatalog.region} ilike ${searchPattern}`,
         sql`${wineCatalog.country} ilike ${searchPattern}`

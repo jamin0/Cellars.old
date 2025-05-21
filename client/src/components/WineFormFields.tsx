@@ -61,6 +61,42 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
+          name="wine"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Wine Type</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Cabernet Sauvignon" {...field} />
+              </FormControl>
+              <FormDescription>
+                The specific variety or type of wine
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="subType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sub-Type</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Grand Cru" {...field} />
+              </FormControl>
+              <FormDescription>
+                Additional classification or sub-type
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
           name="producer"
           render={({ field }) => (
             <FormItem>

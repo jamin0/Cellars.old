@@ -35,6 +35,8 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
       id: wine.id,
       name: wine.name,
       category: wine.category,
+      wine: wine.wine,          // Include wine type
+      subType: wine.subType,    // Include sub-type
       producer: wine.producer,
       region: wine.region,
       country: wine.country

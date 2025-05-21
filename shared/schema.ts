@@ -26,6 +26,8 @@ export const wines = pgTable("wines", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   category: text("category").notNull(),
+  wine: text("wine"), // The specific wine name/type
+  subType: text("sub_type"), // Subtype information
   producer: text("producer"),
   region: text("region"),
   country: text("country"),
@@ -41,6 +43,8 @@ export const wineCatalog = pgTable("wine_catalog", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   category: text("category").notNull(),
+  wine: text("wine"), // The specific wine name/type
+  subType: text("sub_type"), // Subtype information
   producer: text("producer"),
   region: text("region"),
   country: text("country"),
