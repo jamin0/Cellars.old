@@ -68,12 +68,12 @@ export default function WineDetail() {
       console.log("Wine data loaded:", wine);
       
       // Set main wine details
-      setName(wine.name);
-      setWineType(wine.wine);
-      setSubType(wine.subType);
-      setProducer(wine.producer);
-      setRegion(wine.region);
-      setCountry(wine.country);
+      setName(wine.name || "");
+      setWineType(wine.wine || "");
+      setSubType(wine.subType || "");
+      setProducer(wine.producer || "");
+      setRegion(wine.region || "");
+      setCountry(wine.country || "");
       
       // Set vintage stocks, ensuring it's an array
       const stocks = Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [];
