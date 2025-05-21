@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { WineCatalog } from "@shared/schema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Search, X, Plus } from "lucide-react";
 
 interface SearchWineProps {
@@ -17,7 +17,6 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
   const [, navigate] = useLocation();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
   
   const { data: searchResults, isLoading } = useQuery<WineCatalog[]>({
     queryKey: ["/api/catalog/search", searchTerm],
@@ -28,19 +27,6 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
     },
     enabled: searchTerm.length > 2,
   });
-  
-  // Focus input when popover opens
-  useEffect(() => {
-    if (open && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [open]);
-  
-  // Handle search input change for autocomplete
-  const handleSearchChange = (newValue: string) => {
-    setSearchTerm(newValue);
-    setOpen(true); // Ensure the dropdown is open when typing
-  };
   
   // Handle selection of a wine from catalog
   const handleSelectWine = (wine: WineCatalog) => {
@@ -59,18 +45,19 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
       <div className="mx-4 bg-background rounded-lg shadow-lg border p-2">
         <div className="relative">
           <Input
+            type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              handleSearchChange(e.target.value);
-            }}
-            placeholder="Search wine catalog to add..."
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search wine catalog..."
             className="pl-10 pr-10"
-            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" 
+          />
           {searchTerm && (
             <Button
+              type="button"
               variant="ghost"
               size="icon"
               className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6"
@@ -80,14 +67,21 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
             </Button>
           )}
           
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverContent 
-              className="p-0 w-[calc(100vw-2rem)] max-w-xl" 
-              align="center"
-              side="top"
-              sideOffset={10}
-            >
-              <Command>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="p-0 max-w-xl">
+              <div className="p-4">
+                <Input
+                  autoFocus
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search wine catalog..."
+                  className="pl-10"
+                />
+                <Search className="absolute left-7 top-[2.1rem] h-4 w-4 text-muted-foreground" />
+              </div>
+              
+              <Command className="rounded-t-none border-t">
                 <CommandList>
                   {searchTerm.length <= 2 ? (
                     <CommandEmpty>Type at least 3 characters to search</CommandEmpty>
@@ -99,7 +93,10 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
                         <p>No wines found. Add a custom wine instead?</p>
                         <Button 
                           className="mt-2" 
-                          onClick={() => navigate("/add")}
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/add");
+                          }}
                         >
                           <Plus className="mr-2 h-4 w-4" />
                           Add Custom Wine
@@ -127,7 +124,10 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
                         </CommandItem>
                       ))}
                       <CommandItem
-                        onSelect={() => navigate("/add")}
+                        onSelect={() => {
+                          setOpen(false);
+                          navigate("/add");
+                        }}
                         className="border-t py-2 cursor-pointer"
                       >
                         <Plus className="mr-2 h-4 w-4" />
@@ -137,8 +137,8 @@ export default function SearchWine({ value, onChange }: SearchWineProps) {
                   )}
                 </CommandList>
               </Command>
-            </PopoverContent>
-          </Popover>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
