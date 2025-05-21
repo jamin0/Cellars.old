@@ -46,7 +46,7 @@ export default function AddWine() {
     resolver: zodResolver(wineFormSchema),
     defaultValues: {
       name: catalogWine?.name || "",
-      category: catalogWine?.category as keyof typeof WineCategory || "Red",
+      category: catalogWine?.category as keyof typeof WineCategory || "Other",
       wine: catalogWine?.wine || "",      // Include Wine Type
       subType: catalogWine?.subType || "", // Include Sub-Type
       producer: catalogWine?.producer || "",
