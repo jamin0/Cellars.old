@@ -148,9 +148,8 @@ export class MemStorage implements IStorage {
 
 export class DatabaseStorage implements IStorage {
   constructor() {
-    // When the database storage is initialized, we'll try to load the catalog
-    this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
-      .catch(err => console.error('Failed to load wine catalog:', err));
+    // We no longer automatically load the CSV data on startup
+    // This ensures catalog data remains persistent
   }
 
   // Wine Inventory Methods
@@ -262,56 +261,75 @@ export class DatabaseStorage implements IStorage {
           fs.mkdirSync(dir, { recursive: true });
         }
 
-        // Create an empty CSV file if it doesn't exist
+        // Check if the CSV file exists
         if (!fs.existsSync(filePath)) {
-          fs.writeFileSync(filePath, 'NAME,PRODUCER,WINE,COUNTRY,REGION,TYPE,SUB_TYPE\n');
+          console.log("CSV file doesn't exist, skipping catalog import");
           resolve();
           return;
         }
 
-        const parser = parse({
-          columns: true,
-          skip_empty_lines: true,
-          trim: true
-        });
-
-        const wines: InsertWineCatalog[] = [];
-
-        parser.on('readable', () => {
-          let record;
-          while ((record = parser.read()) !== null) {
-            wines.push({
-              name: record.NAME || record.name || '',
-              category: record.TYPE || record.category || 'Other',
-              wine: record.WINE || record.wine || null,
-              subType: record.SUB_TYPE || record.subType || null,
-              producer: record.PRODUCER || record.producer || null,
-              region: record.REGION || record.region || null,
-              country: record.COUNTRY || record.country || null
-            });
-          }
-        });
-
-        parser.on('error', (err) => {
-          reject(err);
-        });
-
-        parser.on('end', async () => {
-          try {
-            // First delete all existing catalog items
-            await db.delete(wineCatalog);
+        // First check if we already have catalog data in the database
+        // If we do, we'll skip importing to preserve any user changes
+        db.select({ count: sql`count(*)` })
+          .from(wineCatalog)
+          .then(async (result) => {
+            const count = Number(result[0]?.count || 0);
             
-            // Then bulk insert if we have wines
-            if (wines.length > 0) {
-              await db.insert(wineCatalog).values(wines);
+            // If we already have data, don't reimport
+            if (count > 0) {
+              console.log(`Wine catalog already has ${count} entries, skipping import to preserve data`);
+              resolve();
+              return;
             }
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        });
 
-        createReadStream(filePath).pipe(parser);
+            // Otherwise proceed with importing only for the first time
+            console.log("Wine catalog is empty, importing initial data from CSV");
+            
+            const parser = parse({
+              columns: true,
+              skip_empty_lines: true,
+              trim: true
+            });
+
+            const wines: InsertWineCatalog[] = [];
+
+            parser.on('readable', () => {
+              let record;
+              while ((record = parser.read()) !== null) {
+                wines.push({
+                  name: record.NAME || record.name || '',
+                  category: record.TYPE || record.category || 'Other',
+                  wine: record.WINE || record.wine || null,
+                  subType: record.SUB_TYPE || record.subType || null,
+                  producer: record.PRODUCER || record.producer || null,
+                  region: record.REGION || record.region || null,
+                  country: record.COUNTRY || record.country || null
+                });
+              }
+            });
+
+            parser.on('error', (err) => {
+              reject(err);
+            });
+
+            parser.on('end', async () => {
+              try {
+                // Only insert new data - we no longer delete existing data
+                if (wines.length > 0) {
+                  await db.insert(wineCatalog).values(wines);
+                  console.log(`Imported ${wines.length} wines to catalog`);
+                }
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            });
+
+            createReadStream(filePath).pipe(parser);
+          })
+          .catch(error => {
+            reject(error);
+          });
       } catch (error) {
         reject(error);
       }
