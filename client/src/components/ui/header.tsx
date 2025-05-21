@@ -34,18 +34,24 @@ export default function Header({ title = "Wine Cellar" }: HeaderProps) {
               <span className="hidden md:inline text-sm font-medium">
                 {user?.firstName || 'User'}
               </span>
-              <a href="/api/logout" title="Log out">
-                <Button variant="ghost" size="icon">
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </a>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => window.location.href = '/api/logout'}
+                title="Log out"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
             </div>
           ) : (
-            <a href="/api/login" title="Log in">
-              <Button variant="ghost" size="icon">
-                <LogIn className="h-5 w-5" />
-              </Button>
-            </a>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => window.location.href = '/api/login'}
+              title="Log in"
+            >
+              <LogIn className="h-5 w-5" />
+            </Button>
           )}
           <ThemeToggle />
         </div>
