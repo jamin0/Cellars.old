@@ -239,6 +239,18 @@ export default function WineDetail() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium">Wine Details</h3>
+                    {wine.wine && (
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">Wine Type:</span>
+                        <span className="text-sm">{wine.wine}</span>
+                      </div>
+                    )}
+                    {wine.subType && (
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">Sub-Type:</span>
+                        <span className="text-sm">{wine.subType}</span>
+                      </div>
+                    )}
                     {wine.producer && (
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Producer:</span>
@@ -255,12 +267,6 @@ export default function WineDetail() {
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Country:</span>
                         <span className="text-sm">{wine.country}</span>
-                      </div>
-                    )}
-                    {wineCatalogInfo?.name && (
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium">Type:</span>
-                        <span className="text-sm">{wine.category}</span>
                       </div>
                     )}
                   </div>
