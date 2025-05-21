@@ -32,10 +32,12 @@ export default function Home() {
     // Category filter
     const categoryMatch = selectedCategory === "All" || wine.category === selectedCategory;
     
-    // Text filter for inventory
+    // Text filter for inventory - search by name, producer, wine type and sub-type
     const filterMatch = !inventoryFilter || 
       wine.name.toLowerCase().includes(inventoryFilter.toLowerCase()) ||
-      (wine.producer && wine.producer.toLowerCase().includes(inventoryFilter.toLowerCase()));
+      (wine.producer && wine.producer.toLowerCase().includes(inventoryFilter.toLowerCase())) ||
+      (wine.wine && wine.wine.toLowerCase().includes(inventoryFilter.toLowerCase())) ||
+      (wine.subType && wine.subType.toLowerCase().includes(inventoryFilter.toLowerCase()));
     
     return categoryMatch && filterMatch;
   });
