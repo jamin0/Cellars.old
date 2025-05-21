@@ -33,34 +33,27 @@ export default function WineDetail() {
     return getVintageApplicableCategories().includes(category as any);
   };
   
-  // Get data from the API
-  const { data: allWines, isLoading, isError } = useQuery({
-    queryKey: ["/api/wines"],
+  // Fetch the specific wine directly
+  const { data: wine, isLoading, isError } = useQuery({
+    queryKey: [`/api/wines/${id}`],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/wines");
-      return response as Wine[];
-    }
-  });
-  
-  // Find the specific wine
-  const wine = allWines?.find(w => w.id === id);
-  
-  // Fetch catalog info directly with a more targeted search
-  const { data: catalogInfo } = useQuery<WineCatalog[]>({
-    queryKey: ["/api/catalog/search", currentWine?.name],
-    queryFn: async () => {
-      const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(currentWine?.name || '')}`);
-      if (!res.ok) throw new Error('Failed to search wine catalog');
-      return res.json();
+      if (!id) return null;
+      
+      try {
+        const response = await fetch(`/api/wines/${id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch wine: ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching wine:", error);
+        throw error;
+      }
     },
-    enabled: !!currentWine?.name,
+    enabled: !!id
   });
   
-  // Get the first matching catalog entry if available
-  const wineCatalogInfo = catalogInfo?.find(item => 
-    item.name.toLowerCase() === currentWine?.name.toLowerCase()
-  );
-  
+  // Update local state when the wine data changes
   useEffect(() => {
     if (wine) {
       console.log("Wine data loaded:", wine);
@@ -78,19 +71,12 @@ export default function WineDetail() {
       }
       setTotalStock(total);
       
-      // Prioritize notes field, fall back to description for compatibility
+      // Set notes (prioritize notes field, fall back to description if needed)
       const noteText = wine.notes || wine.description || "";
       setNotes(noteText);
       
       // Set rating
       setRating(wine.rating !== null && wine.rating !== undefined ? wine.rating : null);
-      
-      console.log("Loaded wine details:", { 
-        vintageStocks: stocks,
-        notes: noteText,
-        rating: wine.rating,
-        totalStock: total
-      });
     }
   }, [wine]);
   
@@ -98,8 +84,8 @@ export default function WineDetail() {
     mutationFn: (data: Partial<Wine>) => 
       apiRequest("PATCH", `/api/wines/${id}`, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/wines/${id}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/wines", id] });
       toast({
         title: "Wine Updated",
         description: "Your changes have been saved.",
@@ -158,14 +144,10 @@ export default function WineDetail() {
   };
   
   const handleSaveNotes = () => {
-    console.log("Saving notes:", notes);
-    updateMutation.mutate({ 
-      notes: notes
-    });
+    updateMutation.mutate({ notes });
   };
   
   const handleRatingChange = (newRating: number) => {
-    console.log("Setting rating to:", newRating);
     setRating(newRating);
     updateMutation.mutate({ rating: newRating });
   };
@@ -348,12 +330,12 @@ export default function WineDetail() {
                         className="p-3 border rounded-md min-h-[100px] text-sm"
                         onClick={() => setIsEditing(true)}
                       >
-                        {wine?.notes || notes || "Click to add notes..."}
+                        {notes || "Click to add notes..."}
                       </div>
                     )}
                   </div>
                   
-                  {/* Simple rating implementation - would need to be enhanced with proper state storage */}
+                  {/* Rating implementation */}
                   <div>
                     <h3 className="text-sm font-medium mb-2">Your Rating</h3>
                     <div className="flex items-center gap-1">
@@ -362,7 +344,6 @@ export default function WineDetail() {
                           key={star} 
                           onClick={() => handleRatingChange(star)}
                           className={`text-lg ${
-                            (wine?.rating && star <= wine.rating) || 
                             (rating !== null && star <= rating) 
                               ? 'text-yellow-500' 
                               : 'text-muted-foreground'
@@ -395,11 +376,10 @@ export default function WineDetail() {
                   ) : (
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Total Stock:</span>
+                        <span className="text-sm font-medium">Total Bottles:</span>
                         <span className="text-xl font-bold">{totalStock}</span>
                       </div>
-                      
-                      <VintageManager
+                      <VintageManager 
                         vintageStocks={vintageStocks}
                         onChange={handleVintageStocksChange}
                       />
@@ -411,9 +391,6 @@ export default function WineDetail() {
           </CardContent>
         </Card>
       </main>
-      
-      {/* Global search for adding wines from catalog */}
-      <SearchWine value="" onChange={() => {}} />
     </div>
   );
 }
