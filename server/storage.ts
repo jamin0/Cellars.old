@@ -1,11 +1,14 @@
 import { 
   wines, 
-  wineCatalog, 
+  wineCatalog,
+  users,
   type Wine, 
   type InsertWine, 
   type WineCatalog, 
   type InsertWineCatalog,
-  type VintageStock
+  type VintageStock,
+  type User,
+  type UpsertUser
 } from "@shared/schema";
 import fs from 'fs';
 import { createReadStream } from 'fs';
@@ -37,18 +40,38 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private wineStore: Map<number, Wine>;
   private catalogStore: Map<number, WineCatalog>;
+  private userStore: Map<string, User>;
   private wineCurrentId: number;
   private catalogCurrentId: number;
 
   constructor() {
     this.wineStore = new Map();
     this.catalogStore = new Map();
+    this.userStore = new Map();
     this.wineCurrentId = 1;
     this.catalogCurrentId = 1;
 
     // Try to load the wine catalog from CSV on initialization
     this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
       .catch(err => console.error('Failed to load wine catalog:', err));
+  }
+  
+  // User management methods
+  async getUser(id: string): Promise<User | undefined> {
+    return this.userStore.get(id);
+  }
+  
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = this.userStore.get(userData.id);
+    
+    const user: User = {
+      ...userData,
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.userStore.set(userData.id, user);
+    return user;
   }
 
   // Wine Inventory Methods
