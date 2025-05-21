@@ -65,7 +65,10 @@ export const insertWineCatalogSchema = createInsertSchema(wineCatalog).omit({
 });
 
 // Types for usage throughout the app
-export type Wine = typeof wines.$inferSelect;
+export type Wine = typeof wines.$inferSelect & {
+  // Include description field for backward compatibility
+  description?: string | null;
+};
 export type InsertWine = z.infer<typeof insertWineSchema>;
 export type WineCatalog = typeof wineCatalog.$inferSelect;
 export type InsertWineCatalog = z.infer<typeof insertWineCatalogSchema>;

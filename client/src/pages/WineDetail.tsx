@@ -62,6 +62,8 @@ export default function WineDetail() {
   
   useEffect(() => {
     if (wine) {
+      console.log("Wine data loaded:", wine);
+      
       // Set vintage stocks, ensuring it's an array
       const stocks = Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [];
       setVintageStocks(stocks);
@@ -75,15 +77,16 @@ export default function WineDetail() {
       }
       setTotalStock(total);
       
-      // Set notes
-      setNotes(wine.notes || "");
+      // Prioritize notes field, fall back to description for compatibility
+      const noteText = wine.notes || wine.description || "";
+      setNotes(noteText);
       
       // Set rating
       setRating(wine.rating !== null && wine.rating !== undefined ? wine.rating : null);
       
       console.log("Loaded wine details:", { 
         vintageStocks: stocks,
-        notes: wine.notes,
+        notes: noteText,
         rating: wine.rating,
         totalStock: total
       });
