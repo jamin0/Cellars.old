@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+// Helper function to safely convert null values to empty string for form inputs
+const nullToString = (value: string | null | undefined): string => {
+  if (value === null || value === undefined) return '';
+  return value;
+};
+
 interface WineFormFieldsProps {
   form: UseFormReturn<InsertWine>;
 }
@@ -66,7 +72,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
             <FormItem>
               <FormLabel>Wine Type</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Cabernet Sauvignon" {...field} />
+                <Input placeholder="e.g., Cabernet Sauvignon" value={nullToString(field.value)} onChange={field.onChange} onBlur={field.onBlur} ref={field.ref} />
               </FormControl>
               <FormDescription>
                 The specific variety or type of wine
@@ -83,7 +89,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
             <FormItem>
               <FormLabel>Sub-Type</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Grand Cru" {...field} />
+                <Input placeholder="e.g., Grand Cru" value={nullToString(field.value)} onChange={field.onChange} onBlur={field.onBlur} ref={field.ref} />
               </FormControl>
               <FormDescription>
                 Additional classification or sub-type
@@ -165,18 +171,43 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
       
       <FormField
         control={form.control}
-        name="description"
+        name="notes"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Notes</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Notes about this wine..." 
+                placeholder="Your personal notes about this wine..." 
                 className="resize-none" 
                 rows={3}
                 {...field} 
               />
             </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="rating"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Your Rating (1-5)</FormLabel>
+            <FormControl>
+              <Input 
+                type="number" 
+                min={1}
+                max={5}
+                {...field}
+                onChange={(e) => field.onChange(parseInt(e.target.value) || null)}
+                value={field.value?.toString() || ""}
+                placeholder="Rate from 1 to 5"
+              />
+            </FormControl>
+            <FormDescription>
+              Rate this wine from 1 (poor) to 5 (excellent)
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

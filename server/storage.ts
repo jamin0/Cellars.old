@@ -170,19 +170,54 @@ export class DatabaseStorage implements IStorage {
 
   async addWine(wine: InsertWine): Promise<Wine> {
     const now = new Date().toISOString();
-    const [result] = await db.insert(wines).values({
+    
+    // Ensure proper data types and defaults
+    const wineData = {
       ...wine,
       vintageStocks: Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [],
+      notes: wine.notes || null,
+      rating: wine.rating !== undefined ? wine.rating : null,
       createdAt: now
-    }).returning();
+    };
+    
+    console.log("Adding wine with data:", wineData);
+    
+    const [result] = await db.insert(wines).values(wineData).returning();
     return result;
   }
 
   async updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined> {
+    console.log("Updating wine with ID:", id, "Data:", wine);
+    
+    // Validate and sanitize input values for update
+    const updateData: any = {};
+    
+    // Handle each field individually to ensure proper typing
+    if (wine.name !== undefined) updateData.name = wine.name;
+    if (wine.category !== undefined) updateData.category = wine.category;
+    if (wine.wine !== undefined) updateData.wine = wine.wine;
+    if (wine.subType !== undefined) updateData.subType = wine.subType;
+    if (wine.producer !== undefined) updateData.producer = wine.producer;
+    if (wine.region !== undefined) updateData.region = wine.region;
+    if (wine.country !== undefined) updateData.country = wine.country;
+    if (wine.description !== undefined) updateData.description = wine.description;
+    if (wine.notes !== undefined) updateData.notes = wine.notes;
+    if (wine.rating !== undefined) updateData.rating = wine.rating;
+    if (wine.stockLevel !== undefined) updateData.stockLevel = wine.stockLevel;
+    if (wine.imageUrl !== undefined) updateData.imageUrl = wine.imageUrl;
+    
+    // Handle vintage stocks specially to ensure it's an array
+    if (wine.vintageStocks !== undefined) {
+      updateData.vintageStocks = Array.isArray(wine.vintageStocks) 
+        ? wine.vintageStocks 
+        : [];
+    }
+    
     const [result] = await db.update(wines)
-      .set(wine)
+      .set(updateData)
       .where(eq(wines.id, id))
       .returning();
+      
     return result;
   }
 

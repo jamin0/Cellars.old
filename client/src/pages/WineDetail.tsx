@@ -338,7 +338,7 @@ export default function WineDetail() {
                         className="p-3 border rounded-md min-h-[100px] text-sm"
                         onClick={() => setIsEditing(true)}
                       >
-                        {notes || "Click to add notes..."}
+                        {wine?.notes || notes || "Click to add notes..."}
                       </div>
                     )}
                   </div>
@@ -351,7 +351,12 @@ export default function WineDetail() {
                         <button 
                           key={star} 
                           onClick={() => handleRatingChange(star)}
-                          className={`text-lg ${rating && star <= rating ? 'text-yellow-500' : 'text-muted-foreground'}`}
+                          className={`text-lg ${
+                            (wine?.rating && star <= wine.rating) || 
+                            (rating !== null && star <= rating) 
+                              ? 'text-yellow-500' 
+                              : 'text-muted-foreground'
+                          }`}
                         >
                           <Star className="h-5 w-5" />
                         </button>
