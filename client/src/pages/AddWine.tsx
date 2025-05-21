@@ -94,7 +94,7 @@ export default function AddWine() {
       queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
       
       toast({
-        title: "Wine Added",
+        title: "Bottle Added",
         description: `${data.name} has been added to your collection.`,
       });
       
@@ -102,7 +102,7 @@ export default function AddWine() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Failed to Add Wine",
+        title: "Failed to Add Bottle",
         description: error instanceof Error ? error.message : "Unknown error occurred",
       });
     }
@@ -131,7 +131,7 @@ export default function AddWine() {
   
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header title={catalogWine ? "Add Selected Wine" : "Add Wine"} />
+      <Header title={catalogWine ? "Add Selected Bottle" : "Add Bottle"} />
       
       <main className="flex-1 container px-4 py-6 mx-auto">
         <div className="mb-6">
@@ -144,11 +144,11 @@ export default function AddWine() {
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">
-              {catalogWine ? `Add ${catalogWine.name}` : "Add New Wine"}
+              {catalogWine ? `Add ${catalogWine.name}` : "Add New Bottle"}
             </CardTitle>
             {catalogWine && (
               <p className="text-sm text-muted-foreground">
-                Information populated from wine catalog
+                Information populated from catalog
               </p>
             )}
           </CardHeader>

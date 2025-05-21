@@ -59,10 +59,6 @@ export default function Home() {
       
       <main className="flex-1 container px-4 py-6 mx-auto">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-3xl font-bold">My Wine Collection</h1>
-          </div>
-
           <div className="flex flex-col gap-4">
             <div className="w-full">
               <div className="flex flex-col gap-4">
