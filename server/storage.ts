@@ -154,23 +154,23 @@ export class DatabaseStorage implements IStorage {
 
   // Wine Inventory Methods
   async getWines(): Promise<Wine[]> {
-    const result = await db.select().from(schema.wines);
+    const result = await db.select().from(wines);
     return result;
   }
 
   async getWineById(id: number): Promise<Wine | undefined> {
-    const [wine] = await db.select().from(schema.wines).where(eq(schema.wines.id, id));
+    const [wine] = await db.select().from(wines).where(eq(wines.id, id));
     return wine;
   }
 
   async getWinesByCategory(category: string): Promise<Wine[]> {
-    const result = await db.select().from(schema.wines).where(eq(schema.wines.category, category));
+    const result = await db.select().from(wines).where(eq(wines.category, category));
     return result;
   }
 
   async addWine(wine: InsertWine): Promise<Wine> {
     const now = new Date().toISOString();
-    const [result] = await db.insert(schema.wines).values({
+    const [result] = await db.insert(wines).values({
       ...wine,
       vintageStocks: Array.isArray(wine.vintageStocks) ? wine.vintageStocks : [],
       createdAt: now
@@ -179,30 +179,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined> {
-    const [result] = await db.update(schema.wines)
+    const [result] = await db.update(wines)
       .set(wine)
-      .where(eq(schema.wines.id, id))
+      .where(eq(wines.id, id))
       .returning();
     return result;
   }
 
   async deleteWine(id: number): Promise<boolean> {
-    const result = await db.delete(schema.wines).where(eq(schema.wines.id, id));
-    return result.count > 0;
+    const result = await db.delete(wines).where(eq(wines.id, id));
+    return !!result;
   }
 
   // Wine Catalog Methods (from CSV)
   async getWineCatalog(): Promise<WineCatalog[]> {
-    const result = await db.select().from(schema.wineCatalog);
+    const result = await db.select().from(wineCatalog);
     return result;
   }
 
   async searchWineCatalog(query: string): Promise<WineCatalog[]> {
     const lowerQuery = query.toLowerCase();
-    const result = await db.select().from(schema.wineCatalog).where(
+    const result = await db.select().from(wineCatalog).where(
       or(
-        sql`lower(${schema.wineCatalog.name}) like ${`%${lowerQuery}%`}`,
-        sql`lower(${schema.wineCatalog.producer}) like ${`%${lowerQuery}%`}`
+        sql`lower(${wineCatalog.name}) like ${`%${lowerQuery}%`}`,
+        sql`lower(${wineCatalog.producer}) like ${`%${lowerQuery}%`}`
       )
     );
     return result;
@@ -252,11 +252,11 @@ export class DatabaseStorage implements IStorage {
         parser.on('end', async () => {
           try {
             // First delete all existing catalog items
-            await db.delete(schema.wineCatalog);
+            await db.delete(wineCatalog);
             
             // Then bulk insert if we have wines
             if (wines.length > 0) {
-              await db.insert(schema.wineCatalog).values(wines);
+              await db.insert(wineCatalog).values(wines);
             }
             resolve();
           } catch (error) {
