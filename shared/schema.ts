@@ -56,6 +56,9 @@ export const wineCatalog = pgTable("wine_catalog", {
 export const insertWineSchema = createInsertSchema(wines).omit({
   id: true,
   createdAt: true,
+}).extend({
+  notes: z.string().nullable().optional(),
+  rating: z.number().min(1).max(5).nullable().optional(),
 });
 
 export const insertWineCatalogSchema = createInsertSchema(wineCatalog).omit({

@@ -75,8 +75,10 @@ export default function WineDetail() {
       }
       setTotalStock(total);
       
-      // Set notes and rating
-      setNotes(wine.notes || "");
+      // Set notes (check both notes and description fields for backward compatibility)
+      setNotes(wine.notes || wine.description || "");
+      
+      // Set rating
       setRating(wine.rating !== null && wine.rating !== undefined ? wine.rating : null);
       
       console.log("Loaded wine details:", { 
@@ -152,10 +154,16 @@ export default function WineDetail() {
   };
   
   const handleSaveNotes = () => {
-    updateMutation.mutate({ notes: notes });
+    console.log("Saving notes:", notes);
+    updateMutation.mutate({ 
+      notes: notes,
+      // Also update the description field for backward compatibility
+      description: notes
+    });
   };
   
   const handleRatingChange = (newRating: number) => {
+    console.log("Setting rating to:", newRating);
     setRating(newRating);
     updateMutation.mutate({ rating: newRating });
   };

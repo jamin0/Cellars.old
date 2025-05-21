@@ -4,7 +4,8 @@ import {
   type Wine, 
   type InsertWine, 
   type WineCatalog, 
-  type InsertWineCatalog 
+  type InsertWineCatalog,
+  type VintageStock
 } from "@shared/schema";
 import fs from 'fs';
 import { createReadStream } from 'fs';
