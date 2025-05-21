@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ArrowLeft, Edit, Trash2, Star, StarHalf } from "lucide-react";
 import StockLevelControl from "@/components/StockLevelControl";
 import VintageManager from "@/components/VintageManager";
+import SearchWine from "@/components/SearchWine";
 import { getCategoryColor, getVintageApplicableCategories } from "@/lib/wine-categories";
 
 export default function WineDetail() {
