@@ -70,11 +70,12 @@ export default function AddWine() {
     try {
       // If vintage is applicable but stockLevel > 0 and no vintageStocks,
       // create a default vintage for the current year
-      if (isVintageApplicable && data.stockLevel > 0 && (!data.vintageStocks || data.vintageStocks.length === 0)) {
+      if (isVintageApplicable && data.stockLevel && data.stockLevel > 0 && (!data.vintageStocks || data.vintageStocks.length === 0)) {
         const currentYear = new Date().getFullYear();
+        const stockLevel = data.stockLevel || 1;
         data.vintageStocks = [{
           vintage: currentYear,
-          stock: data.stockLevel
+          stock: stockLevel
         }];
       }
       
@@ -148,7 +149,7 @@ export default function AddWine() {
                 
                 {isVintageApplicable && (
                   <VintageManager
-                    vintageStocks={form.watch("vintageStocks") || []}
+                    vintageStocks={Array.isArray(form.watch("vintageStocks")) ? form.watch("vintageStocks") : []}
                     onChange={handleVintageStocksChange}
                   />
                 )}
