@@ -89,12 +89,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update an existing wine
-  app.patch("/api/wines/:id", async (req, res) => {
+  // Update an existing wine (requires authentication)
+  app.patch("/api/wines/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid wine ID" });
+      }
+
+      // First check if the wine exists and belongs to the user
+      const wine = await storage.getWineById(id);
+      if (!wine) {
+        return res.status(404).json({ message: "Wine not found" });
+      }
+      
+      // Verify ownership - user can only update their own wines
+      if (wine.userId !== req.user.claims.sub) {
+        return res.status(403).json({ message: "You don't have permission to update this wine" });
       }
 
       // We only validate the fields that were provided
@@ -109,10 +120,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedWine = await storage.updateWine(id, parseResult.data);
-      if (!updatedWine) {
-        return res.status(404).json({ message: "Wine not found" });
-      }
-
       res.json(updatedWine);
     } catch (err) {
       console.error("Error updating wine:", err);
@@ -120,21 +127,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete a wine
-  app.delete("/api/wines/:id", async (req, res) => {
+  // Delete a wine (requires authentication)
+  app.delete("/api/wines/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid wine ID" });
       }
 
-      const success = await storage.deleteWine(id);
-      if (!success) {
+      // First check if the wine exists and belongs to the user
+      const wine = await storage.getWineById(id);
+      if (!wine) {
         return res.status(404).json({ message: "Wine not found" });
       }
+      
+      // Verify ownership - user can only delete their own wines
+      if (wine.userId !== req.user.claims.sub) {
+        return res.status(403).json({ message: "You don't have permission to delete this wine" });
+      }
 
+      const success = await storage.deleteWine(id);
       res.status(204).send();
     } catch (err) {
+      console.error("Error deleting wine:", err);
       res.status(500).json({ message: "Failed to delete wine" });
     }
   });
