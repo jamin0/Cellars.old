@@ -34,15 +34,17 @@ export default function WineDetail() {
     return getVintageApplicableCategories().includes(category as any);
   };
   
-  // We'll debug wine data once it's loaded
-  
-  // Get the wine details
-  const { data: wine, isLoading, isError } = useQuery<Wine>({
-    queryKey: ["/api/wines", id],
-    enabled: !!id,
-    retry: 3,
-    staleTime: 5000
+  // Get all wines to ensure we have the latest data
+  const { data: allWines, isLoading, isError } = useQuery({
+    queryKey: ["/api/wines"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/wines");
+      return response as Wine[];
+    }
   });
+  
+  // Extract the specific wine from all wines
+  const wine = allWines?.find(w => w.id === id);
   
   // Fetch catalog info directly with a more targeted search
   const { data: catalogInfo } = useQuery<WineCatalog[]>({
