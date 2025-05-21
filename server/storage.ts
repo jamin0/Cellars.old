@@ -179,11 +179,36 @@ export class DatabaseStorage implements IStorage {
     this.loadWineCatalogFromCSV(path.join(process.cwd(), 'server/data/winedb2.csv'))
       .catch(err => console.error('Failed to load wine catalog:', err));
   }
+  
+  // User management methods
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+  
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
 
   // Wine Inventory Methods
-  async getWines(): Promise<Wine[]> {
-    const result = await db.select().from(wines);
-    return result;
+  async getWines(userId?: string): Promise<Wine[]> {
+    if (userId) {
+      return await db.select().from(wines)
+        .where(eq(wines.userId, userId))
+        .orderBy(wines.name);
+    }
+    return await db.select().from(wines);
   }
 
   async getWineById(id: number): Promise<Wine | undefined> {
@@ -191,9 +216,14 @@ export class DatabaseStorage implements IStorage {
     return wine;
   }
 
-  async getWinesByCategory(category: string): Promise<Wine[]> {
-    const result = await db.select().from(wines).where(eq(wines.category, category));
-    return result;
+  async getWinesByCategory(category: string, userId?: string): Promise<Wine[]> {
+    if (userId) {
+      return await db.select()
+        .from(wines)
+        .where(eq(wines.category, category))
+        .where(eq(wines.userId, userId));
+    }
+    return await db.select().from(wines).where(eq(wines.category, category));
   }
 
   async addWine(wine: InsertWine): Promise<Wine> {
