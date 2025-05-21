@@ -55,6 +55,7 @@ export default function WineFormFields({ form }: WineFormFieldsProps) {
                   <SelectItem value={WineCategory.FORTIFIED}>Fortified Wine</SelectItem>
                   <SelectItem value={WineCategory.BEER}>Beer</SelectItem>
                   <SelectItem value={WineCategory.CIDER}>Cider</SelectItem>
+                  <SelectItem value={WineCategory.WHISKIES}>Whiskies</SelectItem>
                   <SelectItem value={WineCategory.OTHER}>Other</SelectItem>
                 </SelectContent>
               </Select>

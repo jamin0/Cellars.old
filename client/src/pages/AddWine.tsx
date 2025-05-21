@@ -41,12 +41,23 @@ export default function AddWine() {
   
   const catalogWine = getSelectedWineData();
   
+  // Map catalog categories to app categories, handling "NA" or other unknown values
+  const mapCategoryToAppCategory = (catalogCategory: string | undefined): keyof typeof WineCategory => {
+    if (!catalogCategory || catalogCategory === "NA" || catalogCategory === "Spirit") {
+      return "OTHER";
+    }
+    
+    // Check if the category exists in WineCategory
+    const categoryExists = Object.values(WineCategory).includes(catalogCategory as any);
+    return categoryExists ? (catalogCategory as keyof typeof WineCategory) : "OTHER";
+  };
+  
   // Setup form with default values or values from search selection
   const form = useForm<InsertWine>({
     resolver: zodResolver(wineFormSchema),
     defaultValues: {
       name: catalogWine?.name || "",
-      category: catalogWine?.category as keyof typeof WineCategory || "Other",
+      category: mapCategoryToAppCategory(catalogWine?.category),
       wine: catalogWine?.wine || "",      // Include Wine Type
       subType: catalogWine?.subType || "", // Include Sub-Type
       producer: catalogWine?.producer || "",

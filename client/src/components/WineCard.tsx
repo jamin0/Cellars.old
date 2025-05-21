@@ -19,6 +19,14 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
     return vintageStocks.filter(v => v.stock > 0).sort((a, b) => a.vintage - b.vintage);
   }, [vintageStocks]);
   
+  // Calculate total stock from vintages or use stockLevel
+  const totalStock = useMemo(() => {
+    if (activeVintages.length > 0) {
+      return activeVintages.reduce((sum, vintage) => sum + vintage.stock, 0);
+    }
+    return stockLevel || 0;
+  }, [activeVintages, stockLevel]);
+  
   // Format vintage display text
   const vintageDisplay = useMemo(() => {
     if (activeVintages.length === 0) return "";
@@ -44,7 +52,7 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
             <div className="flex flex-col">
               <div className="flex justify-between mb-1">
                 <h3 className="font-medium">{name}</h3>
-                <span className="text-sm font-medium self-start">{stockLevel}</span>
+                <span className="text-sm font-medium self-start">{totalStock}</span>
               </div>
               {secondLineDisplay && (
                 <div className="text-sm italic text-muted-foreground">
@@ -65,7 +73,7 @@ export default function WineCard({ wine, viewMode = "grid" }: WineCardProps) {
         <CardContent className="p-4 flex-1">
           <div className="flex justify-between mb-2">
             <h3 className="font-medium text-lg">{name}</h3>
-            <span className="text-sm font-medium self-start">{stockLevel}</span>
+            <span className="text-sm font-medium self-start">{totalStock}</span>
           </div>
           {secondLineDisplay && (
             <div className="text-sm italic text-muted-foreground">
