@@ -75,8 +75,8 @@ export default function WineDetail() {
       }
       setTotalStock(total);
       
-      // Set notes (check both notes and description fields for backward compatibility)
-      setNotes(wine.notes || wine.description || "");
+      // Set notes
+      setNotes(wine.notes || "");
       
       // Set rating
       setRating(wine.rating !== null && wine.rating !== undefined ? wine.rating : null);
@@ -156,9 +156,7 @@ export default function WineDetail() {
   const handleSaveNotes = () => {
     console.log("Saving notes:", notes);
     updateMutation.mutate({ 
-      notes: notes,
-      // Also update the description field for backward compatibility
-      description: notes
+      notes: notes
     });
   };
   

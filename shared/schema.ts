@@ -31,7 +31,6 @@ export const wines = pgTable("wines", {
   producer: text("producer"),
   region: text("region"),
   country: text("country"),
-  description: text("description"),
   stockLevel: integer("stock_level").default(0),
   vintageStocks: json("vintage_stocks").$type<VintageStock[]>().default([]),
   imageUrl: text("image_url"),

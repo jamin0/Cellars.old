@@ -53,7 +53,7 @@ export default function AddWine() {
       region: catalogWine?.region || "",
       country: catalogWine?.country || "",
       stockLevel: 1, // Default to 1 bottle for better user experience
-      description: "",
+      notes: "",
       vintageStocks: [],
     },
   });

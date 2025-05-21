@@ -202,8 +202,9 @@ export class DatabaseStorage implements IStorage {
     if (wine.producer !== undefined) updateData.producer = wine.producer;
     if (wine.region !== undefined) updateData.region = wine.region;
     if (wine.country !== undefined) updateData.country = wine.country;
-    if (wine.description !== undefined) updateData.description = wine.description;
+    // Only use notes field (description field is removed)
     if (wine.notes !== undefined) updateData.notes = wine.notes;
+    if (wine.description !== undefined) updateData.notes = wine.description; // For backward compatibility
     if (wine.rating !== undefined) updateData.rating = wine.rating;
     if (wine.stockLevel !== undefined) updateData.stock_level = wine.stockLevel; // Column name is stock_level in DB
     if (wine.imageUrl !== undefined) updateData.image_url = wine.imageUrl; // Column name is image_url in DB
