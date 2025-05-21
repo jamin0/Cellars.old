@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useRoute } from "wouter";
-import { VintageStock, Wine, WineCatalog } from "@shared/schema";
+import { VintageStock, Wine } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Header from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Edit, Trash2, Star, StarHalf } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Star } from "lucide-react";
 import StockLevelControl from "@/components/StockLevelControl";
 import VintageManager from "@/components/VintageManager";
-import SearchWine from "@/components/SearchWine";
 import { getCategoryColor, getVintageApplicableCategories } from "@/lib/wine-categories";
 
 export default function WineDetail() {
@@ -34,7 +33,7 @@ export default function WineDetail() {
     return getVintageApplicableCategories().includes(category as any);
   };
   
-  // Get all wines to ensure we have the latest data
+  // Get data from the API
   const { data: allWines, isLoading, isError } = useQuery({
     queryKey: ["/api/wines"],
     queryFn: async () => {
@@ -43,23 +42,23 @@ export default function WineDetail() {
     }
   });
   
-  // Extract the specific wine from all wines
+  // Find the specific wine
   const wine = allWines?.find(w => w.id === id);
   
   // Fetch catalog info directly with a more targeted search
   const { data: catalogInfo } = useQuery<WineCatalog[]>({
-    queryKey: ["/api/catalog/search", wine?.name],
+    queryKey: ["/api/catalog/search", currentWine?.name],
     queryFn: async () => {
-      const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(wine?.name || '')}`);
+      const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(currentWine?.name || '')}`);
       if (!res.ok) throw new Error('Failed to search wine catalog');
       return res.json();
     },
-    enabled: !!wine?.name,
+    enabled: !!currentWine?.name,
   });
   
   // Get the first matching catalog entry if available
   const wineCatalogInfo = catalogInfo?.find(item => 
-    item.name.toLowerCase() === wine?.name.toLowerCase()
+    item.name.toLowerCase() === currentWine?.name.toLowerCase()
   );
   
   useEffect(() => {
