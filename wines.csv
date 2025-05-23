@@ -1,0 +1,45 @@
+id,user_id,name,category,wine,sub_type,producer,region,country,stock_level,vintage_stocks,image_url,rating,notes,created_at
+1,42942198,Ta_ku,White,Sauvignon Blanc,Still,Accolade,Marlborough,New Zealand,1,[],,,,2025-05-21T06:35:00.917Z
+2,42942198,"Duckhorn Vineyards, Decoy Cabernet Sauvignon, Sonoma County",Red,Decoy Cabernet Sauvignon,Still,Duckhorn Vineyards,California,United States,1,[],,,,2025-05-21T06:35:35.815Z
+3,42942198,"Endo Shuzo, Keiryu Junmai Sake",Other,Junmai sake,Sake,Endo Shuzo,NA,Japan,2,,,,Bought via Krisshop in Mar 25,2025-05-21T06:39:26.140Z
+4,42942198,"Teusner, Big Jim Shiraz, Barossa Valley",Red,Big Jim Shiraz,Still,Teusner,South Australia,Australia,1,[],,,,2025-05-21T06:42:10.611Z
+5,42942198,"Ermelinda Freitas, Flor de la Mar Barrel Aged Chardonnay, Peninsula de Setubal",White,Barrel Aged Chardonnay,Still,Ermelinda Freitas,Peninsula de Setubal,Portugal,2,[],,,,2025-05-21T06:43:07.712Z
+6,42942198,"Tinazzi, Sentieri Infiniti Primitivo, Puglia",Red,Sentieri Infiniti Primitivo,Still,Tinazzi,Puglia,Italy,1,[],,,,2025-05-21T06:44:22.053Z
+7,42942198,"Tuscante, Governo all Uso, Toscano",Red,Governo all Uso,Still,Tuscante,Tuscany,Italy,2,[],,,,2025-05-21T06:44:58.760Z
+8,42942198,"Antinori, Chianti Classico, Villa Antinori Riserva",Red,Villa Antinori Riserva,Still,Antinori,Tuscany,Italy,3,[],,,,2025-05-21T06:46:45.281Z
+9,42942198,"Chateau Lange-Reglat, Sauternes",White,NA,Still,Lange-Reglat,Bordeaux,France,1,[],,5,,2025-05-21T06:47:56.102Z
+10,42942198,"Laphroaig, Single Malt 10 YO, Islay",Whiskies,Single Malt 10 YO,Whiskies,Laphroaig,Scotland,United Kingdom,2,,,,,2025-05-21T06:48:56.049Z
+11,42942198,"Dalwhinnie, Single Malt 15YO, Speyside",Whiskies,Single Malt 15YO,Whiskies,Dalwhinnie,Scotland,United Kingdom,1,,,,,2025-05-21T06:49:38.765Z
+12,42942198,"Kavalan, Single Malt Solist Vinho Barrique Single Cask",Whiskies,Single Malt Solist Vinho Barrique Single Cask,Whiskies,Kavalan,NA,Taiwan,1,,,,,2025-05-21T06:50:05.039Z
+13,42942198,"Tobermory-Ledaig, Isle Of Mull Single Malt 18YO, Islands",Whiskies,Isle Of Mull Single Malt Rioja Cask finish,Whiskies,Tobermory-Ledaig,Scotland,United Kingdom,1,,,,,2025-05-21T06:52:48.006Z
+14,42942198,Kavalan Distillery Reserve Madeira Cask,Whiskies,Distillery Reserve Single Cask Strength Madeira Cask,Whiskies,Kavalan,NA,Taiwan,1,,,,,2025-05-21T06:55:19.626Z
+15,42942198,Kavalan Distillery Reserve Personal Blend,Whiskies,Distillery Reserve Cask Strength Personal Blend,Whiskies,Kavalan,NA,Taiwan,1,,,,,2025-05-21T06:55:20.963Z
+16,42942198,"Aperol, Aperitivo Liqueur",Other,Aperitivo,Liqueur,Aperol,NA,Italy,1,,,,,2025-05-21T06:57:10.090Z
+17,42942198,"Oliver's Taranga Vineyards, Shiraz, McLaren Vale",Red,Shiraz,Still,Oliver's Taranga Vineyards,South Australia,Australia,4,[],,,,2025-05-21T06:58:11.483Z
+18,42942198,"Ron Matusalem, 23 Gran Reserva Rum",Other,23 Gran Reserva,Rum,Matusalem,NA,Dominican Republic,1,,,,,2025-05-21T06:59:13.409Z
+19,42942198,M&S Classics No. 34,Red,Classics claret,Still,M&S Place de la Bourse,Bordeaux,France,1,[],,,,2025-05-21T07:01:04.638Z
+20,42942198,George Wyndham Bin 555,Red,Shiraz,Still,George Wyndham,Barossa Valley,Australia,1,[],,,,2025-05-21T07:02:26.806Z
+21,42942198,Portal 10 year Tawny Port,Fortified,Tawny,Port,Portal,Porto,Portugal,1,,,,,2025-05-21T07:03:37.153Z
+22,42942198,Comtesse Thibier,Red,Merlot,Still,,,France,1,[],,,,2025-05-21T07:05:27.416Z
+23,42942198,"Gonzalez Byass, Soledad 1847 Jerez Xeres Sherry",Fortified,Jerez Xeres Sherry,Sherry,Gonzalez Byass,Andalucia,Spain,1,,,,,2025-05-21T07:07:04.434Z
+24,42942198,"Cloudy Bay, Sauvignon Blanc, Marlborough",White,Sauvignon Blanc,Still,Cloudy Bay,Marlborough,New Zealand,2,[],,4,,2025-05-21T08:05:55.129Z
+25,42942198,"Maestro, Gran Maestro, Primitivo di Manduria",Red,Gran Maestro,Still,Maestro,Puglia,Italy,2,[],,,,2025-05-21T08:06:50.564Z
+26,42942198,Bottega Brunello Di Montalcino,Red,Brunello di Montalcino,Still,Bottega,,,1,[],,,,2025-05-21T08:09:01.352Z
+27,42942198,"Terrazas de los Andes, Reserva Malbec, Mendoza",Red,Malbec,Still,Terrazas de los Andes,Mendoza,Argentina,1,[],,,,2025-05-21T08:10:32.605Z
+28,42942198,La Mysteriale Chateauneuf du Pape,Red,Grenache Syrah Mouvedre,Still,Maison de Grand Esprit,Chateauneuf du Pape,France,1,[],,,,2025-05-21T08:13:31.959Z
+29,42942198,"Masi, Valpolicella, Classico Bonacosta",Red,Bonacosta,Still,Masi,Veneto,Italy,1,[],,,,2025-05-21T08:15:32.488Z
+30,42942198,"Frescobaldi, Luce, IGT",Red,Luce,Still,Frescobaldi,Tuscany,Italy,4,[],,,,2025-05-21T08:17:11.221Z
+31,42942198,"Le Volte dell'Ornellaia, Toscana",Red,Le Volte dell'Ornellaia,Still,Ornellaia,Tuscany,Italy,1,[],,,,2025-05-21T08:17:27.221Z
+32,42942198,"Billecart-Salmon, Brut Sous Bois",White,Brut Sous Bois,Sparkling,Billecart-Salmon,Champagne,France,5,[],,,,2025-05-21T08:19:41.246Z
+33,42942198,"Tignanello, Toscana",Red,Tignanello,Still,Antinori,Tuscany,Italy,1,[],,,,2025-05-21T08:20:06.364Z
+34,42942198,"Campo alle Comete, Stupore, Bolgheri",Red,Stupore,Still,Campo alle Comete,Tuscany,Italy,1,[],,,,2025-05-21T08:21:21.790Z
+35,42942198,"Le Serre Nuove dell'Ornellaia, Bolgheri",Red,Le Serre Nuove dell'Ornellaia,Still,Ornellaia,Tuscany,Italy,2,[],,,,2025-05-21T08:22:50.366Z
+36,42942198,"Diplomatico, Reserva Exclusiva Rum",Other,Rum Reserva Exclusiva,Rum,Diplomatico,NA,Venezuela,2,,,,,2025-05-21T08:45:18.037Z
+37,42942198,"Jameson, Blended Crested",Whiskies,Blended Crested,Whiskies,Jameson,NA,Ireland,1,,,,,2025-05-21T08:46:47.611Z
+38,42942198,"Tenuta Tignanello (Antinori), Chianti Classico, Marchese Antinori Riserva",Red,Marchese Antinori Riserva,Still,Tenuta Tignanello (Antinori),Tuscany,Italy,6,[],,,Stored in bond via cru,2025-05-21T09:00:10.351Z
+39,42942198,"Billecart-Salmon, Vintage",White,Vintage,Sparkling,Billecart-Salmon,Champagne,France,7,[],,,,2025-05-21T09:00:36.493Z
+40,42942198,"Guidalberto, Tenuta San Guido, Toscana",Red,Guidalberto,Still,San Guido,Tuscany,Italy,12,[],,,,2025-05-21T09:00:59.781Z
+41,42942198,"Penfolds, Bin 389 Cabernet Shiraz, South Australia",Red,Bin 389 Cabernet Shiraz,Still,Penfolds,South Australia,Australia,6,[],,,,2025-05-21T09:01:22.450Z
+42,42942198,"Chateau Cantemerle 5eme Cru Classe, Haut-Medoc",Red,NA,Still,Cantemerle,Bordeaux,France,6,[],,,,2025-05-21T09:02:29.154Z
+43,42942198,Choya Uji-Green Tea Umeshu,Other,Umeshu,Umeshu,Chita,NA,Japan,1,,,,,2025-05-21T11:39:33.936Z
+44,42942198,"Sipsmith, Sloe Gin Limited Edition 2018",Other,Sloe Gin,Liqueur,Sipsmith,England,United Kingdom,1,,,,,2025-05-21T11:40:49.092Z
